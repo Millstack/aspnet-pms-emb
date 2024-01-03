@@ -29,15 +29,15 @@
         <asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>
 
         <div id="divTopSearch" runat="server" visible="true">
-            <div class="row mb-2 mt-4 mx-auto col-md-11">
-                <div class="form-row col-md-6 align-self-start">
+            <div class="justify-content-end d-flex mb-2 mt-4 px-0 mx-auto col-md-11">
+                <div class="col-md-6">
                     <div class="fw-semibold fs-5 text-dark">
                         <asp:Literal ID="Literal14" Text="EMB Recording" runat="server"></asp:Literal>
                     </div>
                 </div>
-                <div class="form-row col-md-6 text-end">
+                <div class="col-md-6 text-end">
                     <div class="fw-semibold fs-5">
-                        <asp:Button ID="btnNewEmb" runat="server" Text="New EMB Recording +" OnClick="btnNewEmb_Click" CssClass="btn btn-primary shadow" />
+                        <asp:Button ID="btnNewEmb" runat="server" Text="New EMB +" OnClick="btnNewEmb_Click" CssClass="btn btn-primary shadow" />
                     </div>
                 </div>
             </div>

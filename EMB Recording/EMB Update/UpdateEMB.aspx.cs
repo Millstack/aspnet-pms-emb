@@ -480,7 +480,6 @@ public partial class Emp_Calculation_UpdateEMB : System.Web.UI.Page
         using (SqlConnection con = new SqlConnection(connectionString))
         {
             con.Open();
-            //string sql = "SELECT BoQItemName, BoqUOM, BoqQty, BoqPenQty, BoqQtyMeas, BoQUptoPreRaQty, BoqQtyDIff, BoQItemRate, BasicAmount FROM EmbRecords874 WHERE EmbHeaderId=@EmbHeaderId";
             string sql = "SELECT BoQItemName, BoqUOM, BoqQty, BoqPenQty, BoQUptoPreRaQty, BoqQtyDIff, BoQItemRate, BasicAmount FROM EmbRecords874 WHERE EmbHeaderId=@EmbHeaderId";
 
             SqlCommand cmd = new SqlCommand(sql, con);
@@ -654,7 +653,6 @@ public partial class Emp_Calculation_UpdateEMB : System.Web.UI.Page
                     double oldBoqPendingQty = Convert.ToDouble(dt.Rows[rowIndex]["BoqPenQty"]);
                     double boqPendingQty = oldBoqPendingQty - boqQtyMeasured;
 
-                    //int boqQtyDiff = Convert.ToInt32(dt.Rows[rowIndex]["BoqQtyDIff"]);
                     double boqQtyDiff = boqQty - (oldBoqPendingQty - boqQtyMeasured);
 
                     //============{ inserting using sql }================
