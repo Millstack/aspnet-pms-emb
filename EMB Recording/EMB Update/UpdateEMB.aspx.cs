@@ -480,7 +480,8 @@ public partial class Emp_Calculation_UpdateEMB : System.Web.UI.Page
         using (SqlConnection con = new SqlConnection(connectionString))
         {
             con.Open();
-            string sql = "SELECT BoQItemName, BoqUOM, BoqQty, BoqPenQty, BoQUptoPreRaQty, BoqQtyDIff, BoQItemRate, BasicAmount FROM EmbRecords874 WHERE EmbHeaderId=@EmbHeaderId";
+            //string sql = "SELECT BoQItemName, BoqUOM, BoqQty, BoqPenQty, BoQUptoPreRaQty, BoqQtyDIff, BoQItemRate, BasicAmount FROM EmbRecords874 WHERE EmbHeaderId=@EmbHeaderId";
+            string sql = "SELECT BoQItemName, BoqUOM, BoqQty, BoqPenQty, BoqQtyMeas, BoQUptoPreRaQty, BoqQtyDIff, BoQItemRate, BasicAmount FROM EmbRecords874 WHERE EmbHeaderId=@EmbHeaderId";
 
             SqlCommand cmd = new SqlCommand(sql, con);
             cmd.Parameters.AddWithValue("@EmbHeaderId", rowId.ToString());
@@ -491,9 +492,9 @@ public partial class Emp_Calculation_UpdateEMB : System.Web.UI.Page
             ad.Fill(dt);
 
             // Adding a new column "BoqQtyMeas" and set its value to 0.00 for each row
-            DataColumn BoqQtyMeas = new DataColumn("BoqQtyMeas", typeof(decimal));
-            BoqQtyMeas.DefaultValue = 0.00m;
-            dt.Columns.Add(BoqQtyMeas);
+            //DataColumn BoqQtyMeas = new DataColumn("BoqQtyMeas", typeof(decimal));
+            //BoqQtyMeas.DefaultValue = 0.00m;
+            //dt.Columns.Add(BoqQtyMeas);
 
             con.Close();
 

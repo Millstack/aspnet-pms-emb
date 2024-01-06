@@ -5,6 +5,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Web;
+using System.Web.Configuration;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 
@@ -17,9 +18,8 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
     string selectedAODetails;
     string selectedProjectMasterRefID;
     string selectedWorkOrderRefID;
-    int selectedWorkOrderAmount;
     string selectedVendorRefID;
-    string selectedAbstractNoRefID;
+    string selectedAbstractNO;
 
     protected void Page_Load(object sender, EventArgs e)
     {
@@ -128,8 +128,8 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
             con.Close();
 
             ddAbstractNo.DataSource = dt;
-            ddAbstractNo.DataTextField = "AbsEmbHeader";
-            ddAbstractNo.DataValueField = "AbsEmbHeader";
+            ddAbstractNo.DataTextField = "AbsNo";
+            ddAbstractNo.DataValueField = "AbsNo";
             ddAbstractNo.DataBind();
             ddAbstractNo.Items.Insert(0, new ListItem("------Select Abstract No.------", "0"));
         }
@@ -246,9 +246,9 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
     {
         selectedProjectMasterRefID = ddProjectMaster.SelectedValue; // Project ref id
         selectedWorkOrderRefID = ddWorkOrder.SelectedValue; // WO RefID
-        selectedAbstractNoRefID = ddAbstractNo.SelectedValue; // Abstract No. RefID
+        selectedAbstractNO = ddAbstractNo.SelectedValue; // Abstract No. RefID
 
-        FillGridViewWithBoqDetails(selectedProjectMasterRefID, selectedWorkOrderRefID, selectedAbstractNoRefID);
+        FillGridViewWithBoqDetails(selectedProjectMasterRefID, selectedWorkOrderRefID, selectedAbstractNO);
     }
 
     //==========================={ Fetching data }===========================
@@ -290,14 +290,33 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
         }
     }
 
-    private DataTable getAbstractNoDetails(string selectedAbstractNoHeader)
+    private DataTable getVendorDetails(string selectedVendorRefID)
     {
         using (SqlConnection con = new SqlConnection(connectionString))
         {
             con.Open();
-            string sql = "SELECT * FROM AbstApproval874 where AbsEmbHeader=@AbsEmbHeader";
+            string sql = "SELECT * FROM VendorMaster874 where RefID=@RefID";
             SqlCommand cmd = new SqlCommand(sql, con);
-            cmd.Parameters.AddWithValue("@AbsEmbHeader", selectedAbstractNoHeader.ToString());
+            cmd.Parameters.AddWithValue("@RefID", selectedVendorRefID.ToString());
+            cmd.ExecuteNonQuery();
+
+            SqlDataAdapter ad = new SqlDataAdapter(cmd);
+            DataTable dt = new DataTable();
+            ad.Fill(dt);
+            con.Close();
+
+            return dt;
+        }
+    }
+
+    private DataTable getAbstractNoDetails(string selectedAbstractNO)
+    {
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            con.Open();
+            string sql = "SELECT * FROM AbstApproval874 where AbsNo=@AbsNo";
+            SqlCommand cmd = new SqlCommand(sql, con);
+            cmd.Parameters.AddWithValue("@AbsNo", selectedAbstractNO.ToString());
             cmd.ExecuteNonQuery();
 
             SqlDataAdapter ad = new SqlDataAdapter(cmd);
@@ -424,6 +443,7 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
     {
         double basicAmount = bscAmnt;
         double totalDeduction = 0.00;
+        double totalAddition = 0.00;
         double netAmount = 0.00;
 
         foreach (DataRow row in accountHeadDT.Rows)
@@ -432,13 +452,13 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
 
             double factorInPer = (basicAmount * percentage) / 100;
 
-            if(row["AddLess"].ToString() == "Add")
+            if (row["AddLess"].ToString() == "Add")
+            {
+                totalAddition = totalAddition + factorInPer;
+            }
+            else
             {
                 totalDeduction = totalDeduction + factorInPer;
-            }
-            else 
-            {
-                totalDeduction = totalDeduction - factorInPer;
             }
 
             row["TaxAmount"] = factorInPer;
@@ -447,11 +467,14 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
         GridTax.DataSource = accountHeadDT;
         GridTax.DataBind();
 
-        // fill total deduction to textbox
-        txtTotalTax.Text = totalDeduction.ToString("N2");
+        // filling total deduction
+        txtTotalDeduct.Text = Math.Abs(totalDeduction).ToString("N2");
 
-        // Net Amount after tax deductions
-        netAmount = basicAmount - totalDeduction;
+        // filling total addition
+        txtTotalAdd.Text = totalAddition.ToString("N2");
+
+        // Net Amount after tax deductions or addition
+        netAmount = (basicAmount + totalAddition) - Math.Abs(totalDeduction);
         txtNetAmnt.Text = netAmount.ToString("N2");
     }
 
@@ -471,6 +494,7 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
 
         // fetching emb details
         DataTable emdDetailsDT = getEmbDetails(embHeaderDT.Rows[0]["EmbMasRefId"].ToString());
+        Session["BoQDT"] = emdDetailsDT;
 
         // fetching acount head or taxes
         DataTable accountHeadDT = getAccountHead();
@@ -550,6 +574,9 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
 
     protected void btnDocUpload_Click(object sender, EventArgs e)
     {
+        // setting the file size in web.config file (web.config should not be read only)
+        //settingHttpRuntimeForFileSize();
+
         string docTypeCode = ddDocType.SelectedValue;
         string stageCode = ddStage.SelectedValue;
 
@@ -559,43 +586,54 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
 
             if (FileExtension == ".xlsx" || FileExtension == ".xls")
             {
-                
+
             }
 
+            // file name
+            string onlyFileNameWithExtn = fileDoc.FileName.ToString();
+
             // getting unique file name
-            string strFileName = GenerateUniqueId(fileDoc.FileName.ToString());
+            string strFileName = GenerateUniqueId(onlyFileNameWithExtn);
 
-            // file path name
-            //string filePath = Server.MapPath("~/Portal/Public/" + strFileName);
-            //file:///C:/HostingSpaces/PAWAN/cdsmis.in/wwwroot/Pms2/Portal/Public/638399011215544557_926f9320-275e-49ad-8f59-32ecb304a9f1_EMB%20Recording.pdf
-
-            string orgFilePath = Server.MapPath("~/Portal/Public/" + strFileName);
-
-            // saving file
-            fileDoc.SaveAs(orgFilePath);
-
-            // replacing server-specific path with the desired URL
-            string baseUrl = "http://101.53.144.92/pms2/Ginie/External?url=..";
-            string relativePath = orgFilePath.Replace(Server.MapPath("~/Portal/Public/"), "Portal/Public/");
-
-            // Full URL for the hyperlink
-            string fullUrl = $"{baseUrl}/{relativePath}";
-
-            //================================================================
+            // saving and getting file path
+            string filePath = getServerFilePath(strFileName);
 
             // Retrieve DataTable from ViewState or create a new one
             DataTable dt = ViewState["DocDetailsDataTable"] as DataTable ?? CreateDocDetailsDataTable();
 
             // filling document details datatable
-            AddRowToDocDetailsDataTable(dt, docTypeCode, stageCode, fullUrl);
+            AddRowToDocDetailsDataTable(dt, docTypeCode, stageCode, onlyFileNameWithExtn, filePath);
 
             // Save DataTable to ViewState
             ViewState["DocDetailsDataTable"] = dt;
 
-            // binding document details gridview
-            GridDocument.DataSource = dt;
-            GridDocument.DataBind();
+            if (dt.Rows.Count > 0)
+            {
+                // binding document details gridview
+                GridDocument.DataSource = dt;
+                GridDocument.DataBind();
+
+                btnSubmit.Enabled = true;
+
+                // alert pop-up with only message
+                //string message = "File has been added";
+                //string script = $"alert('{message}');";
+                //ScriptManager.RegisterStartupScript(this, this.GetType(), "messageScript", script, true);
+            }
         }
+    }
+
+    private void settingHttpRuntimeForFileSize()
+    {
+        // Get the current HttpRuntime configuration
+        HttpRuntimeSection httpRuntimeSection = (HttpRuntimeSection)System.Configuration.ConfigurationManager.GetSection("system.web/httpRuntime");
+
+        // Set a larger maxRequestLength value (e.g., 100 MB)
+        httpRuntimeSection.MaxRequestLength = 102400;
+
+        // Save the changes to the configuration
+        System.Configuration.Configuration config = System.Web.Configuration.WebConfigurationManager.OpenWebConfiguration("~");
+        config.Save();
     }
 
     private string GenerateUniqueId(string strFileName)
@@ -605,6 +643,26 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
         string guid = Guid.NewGuid().ToString(); //N to remove hypen "-" from GUIDs
         string uniqueID = timestamp + "_" + guid + "_" + strFileName;
         return uniqueID;
+    }
+
+    private string getServerFilePath(string strFileName)
+    {
+        string orgFilePath = Server.MapPath("~/Portal/Public/" + strFileName);
+
+        // saving file
+        fileDoc.SaveAs(orgFilePath);
+
+        //string filePath = Server.MapPath("~/Portal/Public/" + strFileName);
+        //file:///C:/HostingSpaces/PAWAN/cdsmis.in/wwwroot/Pms2/Portal/Public/638399011215544557_926f9320-275e-49ad-8f59-32ecb304a9f1_EMB%20Recording.pdf
+
+        // replacing server-specific path with the desired URL
+        string baseUrl = "http://101.53.144.92/pms2/Ginie/External?url=..";
+        string relativePath = orgFilePath.Replace(Server.MapPath("~/Portal/Public/"), "Portal/Public/");
+
+        // Full URL for the hyperlink
+        string fullUrl = $"{baseUrl}/{relativePath}";
+
+        return fullUrl;
     }
 
     private DataTable CreateDocDetailsDataTable()
@@ -619,6 +677,10 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
         DataColumn stageLevel = new DataColumn("stageLevel", typeof(string));
         dt.Columns.Add(stageLevel);
 
+        // file name
+        DataColumn onlyFileName = new DataColumn("onlyFileName", typeof(string));
+        dt.Columns.Add(onlyFileName);
+
         // Doc uploaded path
         DataColumn docPath = new DataColumn("docPath", typeof(string));
         dt.Columns.Add(docPath);
@@ -626,7 +688,7 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
         return dt;
     }
 
-    private void AddRowToDocDetailsDataTable(DataTable dt, string docTypeCode, string stageCode, string filePath)
+    private void AddRowToDocDetailsDataTable(DataTable dt, string docTypeCode, string stageCode, string onlyFileNameWithExtn, string filePath)
     {
         // Create a new row
         DataRow row = dt.NewRow();
@@ -634,9 +696,193 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
         // Set values for the new row
         row["docType"] = docTypeCode;
         row["stageLevel"] = stageCode;
+        row["onlyFileName"] = onlyFileNameWithExtn;
         row["docPath"] = filePath;
 
         // Add the new row to the DataTable
         dt.Rows.Add(row);
+    }
+
+    //=============================={ Submit Button }============================================
+
+    protected void btnSubmit_Click(object sender, EventArgs e)
+    {
+        // dropd downs
+        selectedProjectMasterRefID = ddProjectMaster.SelectedValue; // Project Master RefID
+        selectedWorkOrderRefID = ddWorkOrder.SelectedValue; // Work Order RefID
+        selectedVendorRefID = ddVender.SelectedValue; // Vendor RefID
+        selectedAbstractNO = ddAbstractNo.SelectedValue; // Abstract No
+
+        // strings
+        string remarks = txtRemarks.Value.ToString(); // remarks
+        string raBillNo = txtBillNo.Text; // ra bill no
+
+        //// Datatables
+        DataTable projectMasterDt = getProjectMaster(selectedProjectMasterRefID); // Ref Id
+        DataTable workOrderDt = getWorkOrderDetails(selectedWorkOrderRefID); // Ref Id
+        DataTable vendorDt = getVendorDetails(selectedVendorRefID); // Ref Id
+        DataTable abstractDt = getAbstractNoDetails(selectedAbstractNO); // Ref Id
+
+        // Numbers
+        int workOrderAmount = Convert.ToInt32(workOrderDt.Rows[0]["woTendrValue"].ToString()); // Work Order Amount
+        int totalBillBookedAmount = 0; // Total Ra Bill Booked
+        double basicAmount = Convert.ToDouble(txtBasicAmt.Text); // basic amount
+        double totalDeduct = Convert.ToDouble(txtTotalDeduct.Text); // total deduction
+        double totalAdd = Convert.ToDouble(txtTotalAdd.Text); // total addition
+        double netAmount = Convert.ToDouble(txtNetAmnt.Text); // net amount adter taxes
+
+        // selected Dates
+        // DateTime? abstractDate = !String.IsNullOrEmpty(dateAbstract.Text) ? DateTime.Parse(dateAbstract.Text) : (DateTime?)null;
+        DateTime raBillDate = DateTime.Parse(dateBillDate.Text);
+        DateTime paymentDueDate = DateTime.Parse(datePayDueDate.Text);
+
+        // Ref ID Generation
+        int RaRefID = getRaHeaderRefID();
+
+        // inserting RA Header
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            con.Open();
+            string sql = "INSERT INTO RaHeader874 " +
+                         "(RefID, RaHeaderID, RaProj, RaWO, RaVendor, RaAbstNo, RaWoAmount, RaBillBookAmnt, RaRemarks, RaBillDate, RaBillNo, RaPayDueDate, RaBasicAmount, " +
+                            "RaTotalDeduct, RaTotalAdd, RaNetAmount) " +
+
+                         "VALUES " +
+                         "(@RefID, @RaHeaderID, @RaProj, @RaWO, @RaVendor, @RaAbstNo, @RaWoAmount, @RaBillBookAmnt, @RaRemarks, @RaBillDate, @RaBillNo, @RaPayDueDate, @RaBasicAmount, " +
+                            "@RaTotalDeduct, @RaTotalAdd, @RaNetAmount) " +
+
+                         "SELECT SCOPE_IDENTITY();";
+
+            SqlCommand cmd = new SqlCommand(sql, con);
+            cmd.Parameters.AddWithValue("@RefID", RaRefID.ToString());
+            cmd.Parameters.AddWithValue("@RaHeaderID", RaRefID.ToString());
+            cmd.Parameters.AddWithValue("@RaProj", projectMasterDt.Rows[0]["ProjectName"].ToString());
+            cmd.Parameters.AddWithValue("@RaWO", workOrderDt.Rows[0]["woTitle"].ToString());
+            cmd.Parameters.AddWithValue("@RaVendor", vendorDt.Rows[0]["vName"].ToString());
+            cmd.Parameters.AddWithValue("@RaAbstNo", abstractDt.Rows[0]["AbsNo"].ToString());
+            cmd.Parameters.AddWithValue("@RaWoAmount", workOrderAmount);
+            cmd.Parameters.AddWithValue("@RaBillBookAmnt", totalBillBookedAmount);
+            cmd.Parameters.AddWithValue("@RaRemarks", remarks);
+            cmd.Parameters.AddWithValue("@RaBillDate", raBillDate.ToString("dd-MM-yyyy"));
+            cmd.Parameters.AddWithValue("@RaBillNo", raBillNo);
+            cmd.Parameters.AddWithValue("@RaPayDueDate", paymentDueDate.ToString("dd-MM-yyyy"));
+            cmd.Parameters.AddWithValue("@RaBasicAmount", basicAmount);
+            cmd.Parameters.AddWithValue("@RaTotalDeduct", totalDeduct);
+            cmd.Parameters.AddWithValue("@RaTotalAdd", totalAdd);
+            cmd.Parameters.AddWithValue("@RaNetAmount", netAmount);
+            //cmd.ExecuteNonQuery();
+
+            int RaHeaderId = Convert.ToInt32(cmd.ExecuteScalar());
+            con.Close();
+
+            // inserting EMB details
+            insertRaDetails(RaRefID);
+        }
+    }
+
+    private void insertRaDetails(int RaHeaderId)
+    {
+        DataTable dt = (DataTable)Session["BoQDT"];
+
+        try
+        {
+            if (dt != null)
+            {
+                using (SqlConnection con = new SqlConnection(connectionString))
+                {
+                    con.Open();
+
+                    foreach (GridViewRow row in gridDynamicBOQ.Rows)
+                    {
+                        // getting ref IDs for all boq individual records
+                        int RaDetailsRefID = getRaDetailsRefID();
+
+                        // to get the current row index
+                        int rowIndex = row.RowIndex;
+
+                        // current uploaded boq index, to be used for updating the original value
+                        // string currentBoQRefID = dt.Rows[rowIndex]["RefID"].ToString();
+
+                        string boqItemName = dt.Rows[rowIndex]["BoQItemName"].ToString();
+                        string uom = dt.Rows[rowIndex]["BoQUOM"].ToString();
+                        double boqQty = Convert.ToDouble(dt.Rows[rowIndex]["BoqQty"]);
+                        double boqQtyMeasured = Convert.ToDouble(dt.Rows[rowIndex]["BoqQtyMeas"]);
+                        double boqQtyDiff = Convert.ToDouble(dt.Rows[rowIndex]["BoqQtyDIff"]);
+                        double boqQtyRate = Convert.ToDouble(dt.Rows[rowIndex]["BoQItemRate"]);
+
+                        // inserting RA Details
+                        string sql = "INSERT INTO RaDetails874 " +
+                                     "(RefID, RaHeaderID, RaBoqItem, RaUom, RaBoqQty, RaAbstQty, RaDiffQty, RaItemRate) " +
+                                     "VALUES " +
+                                     "(@RefID, @RaHeaderID, @RaBoqItem, @RaUom, @RaBoqQty, @RaAbstQty, @RaDiffQty, @RaItemRate)";
+
+                        SqlCommand cmd = new SqlCommand(sql, con);
+                        cmd.Parameters.AddWithValue("@RefID", RaDetailsRefID.ToString());
+                        cmd.Parameters.AddWithValue("@RaHeaderID", RaHeaderId);
+                        cmd.Parameters.AddWithValue("@RaBoqItem", boqItemName.ToString());
+                        cmd.Parameters.AddWithValue("@RaUom", uom);
+                        cmd.Parameters.AddWithValue("@RaBoqQty", boqQty);
+                        cmd.Parameters.AddWithValue("@RaAbstQty", boqQtyMeasured);
+                        cmd.Parameters.AddWithValue("@RaDiffQty", boqQtyDiff);
+                        cmd.Parameters.AddWithValue("@RaItemRate", boqQtyRate);
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    //redirect with only message
+                    string message = "RA Details Submitted Successfully !";
+                    string href = "Update/RABillUpdate.aspx";
+                    string script = $"alert('{message}');location.href = '{href}';";
+                    ScriptManager.RegisterStartupScript(this, this.GetType(), "messageScript", script, true);
+
+                    con.Close();
+                }
+            }
+            else
+            {
+                string message = "BoQ DataTabale is null";
+                string script = $"alert('{message}');";
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "messageScript", script, true);
+            }
+        }
+        catch (SqlException ex)
+        {
+            string errorMessage = "Exception at RA Details insertion";
+            string script = $"alert('{errorMessage}');";
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "messageScript", script, true);
+        }
+    }
+
+    //===================================={ Ref IDs }====================================
+
+    private int getRaHeaderRefID()
+    {
+        string nextRefID = "1000001";
+
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            con.Open();
+            string sql = "SELECT ISNULL(MAX(CAST(RefID AS INT)), 1000000) + 1 AS NextRefID FROM RaHeader874";
+            SqlCommand cmd = new SqlCommand(sql, con);
+
+            object result = cmd.ExecuteScalar();
+            if (result != null && result != DBNull.Value) { nextRefID = result.ToString(); }
+            return Convert.ToInt32(nextRefID);
+        }
+    }
+
+    private int getRaDetailsRefID()
+    {
+        string nextRefID = "1000001";
+
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            con.Open();
+            string sql = "SELECT ISNULL(MAX(CAST(RefID AS INT)), 1000000) + 1 AS NextRefID FROM RaDetails874";
+            SqlCommand cmd = new SqlCommand(sql, con);
+
+            object result = cmd.ExecuteScalar();
+            if (result != null && result != DBNull.Value) { nextRefID = result.ToString(); }
+            return Convert.ToInt32(nextRefID);
+        }
     }
 }

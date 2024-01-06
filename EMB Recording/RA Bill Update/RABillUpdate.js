@@ -37,7 +37,33 @@ $(document).ready(function () {
         __doPostBack('<%= ddVendorName.ClientID %>', '');
     });
 
+    //=====================================================
 
+    $('#ddProjectMaster').select2({
+        theme: 'classic',
+        placeholder: 'Select here.....',
+        allowClear: false,
+    });
+
+    $('#ddWorkOrder').select2({
+        theme: 'classic',
+        placeholder: 'Select here.....',
+        allowClear: false,
+    });
+
+    $('#ddVender').select2({
+        theme: 'classic',
+        placeholder: 'Select here.....',
+        allowClear: false,
+    });
+
+    $('#ddAbstractNo').select2({
+        theme: 'classic',
+        placeholder: 'Select here.....',
+        allowClear: false,
+    });
+
+    //=====================================================
 
 
     // Reinitialize Select2 after UpdatePanel partial postback
@@ -50,30 +76,55 @@ $(document).ready(function () {
 
         }, 0);
 
-        // category
+         // project master
         $('#ddProject').select2({
-            theme: "modern",
+            theme: 'modern',
             placeholder: 'Select here.....',
             allowClear: false,
         });
 
-        // sub category
+        // work order
         $('#ddWOName').select2({
             theme: 'modern',
             placeholder: 'Select here.....',
             allowClear: false,
         });
 
-        // project
+        // vendor name
         $('#ddVendorName').select2({
-            theme: "modern",
+            theme: 'modern',
+            placeholder: 'Select here.....',
+            allowClear: false,
+        });
+        
+        //=======================================
+
+        $('#ddProjectMaster').select2({
+            theme: 'classic',
+            placeholder: 'Select here.....',
+            allowClear: false,
+        });
+
+        $('#ddWorkOrder').select2({
+            theme: 'classic',
+            placeholder: 'Select here.....',
+            allowClear: false,
+        });
+
+        $('#ddVender').select2({
+            theme: 'classic',
+            placeholder: 'Select here.....',
+            allowClear: false,
+        });
+
+        $('#ddAbstractNo').select2({
+            theme: 'classic',
             placeholder: 'Select here.....',
             allowClear: false,
         });
     });
 
 });
-
 
 // clearing the dropdowns is parent dropdown is de-selected
 

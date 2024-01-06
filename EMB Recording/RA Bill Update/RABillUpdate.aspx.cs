@@ -20,8 +20,10 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
     {
         if (!IsPostBack)
         {
-            Bind_RaHeaser();
-            Bind_Role_Project();
+            //Bind_RaHeaser();
+            //Bind_Role_Project();
+
+            DirectSQLQuery();
         }
     }
 
@@ -30,7 +32,7 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
         using (SqlConnection con = new SqlConnection(connectionString))
         {
             con.Open();
-            string sql = "select * from EmbMaster874";
+            string sql = "select * from RaHeader874";
             SqlCommand cmd = new SqlCommand(sql, con);
 
             SqlDataAdapter ad = new SqlDataAdapter(cmd);
@@ -40,6 +42,25 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
 
             gridRaHeader.DataSource = dt;
             gridRaHeader.DataBind();
+        }
+    }
+
+    private void DirectSQLQuery()
+    {
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            con.Open();
+            string sql = "select * from CaseCreation864";
+            SqlCommand cmd = new SqlCommand(sql, con);
+
+            SqlDataAdapter ad = new SqlDataAdapter(cmd);
+            DataTable dt = new DataTable();
+            ad.Fill(dt);
+            con.Close();
+
+            string message = "Case Creation Count: " + dt.Rows.Count;
+            string script = $"alert('{message}');";
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "messageScript", script, true);
         }
     }
 
@@ -126,7 +147,7 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
         }
         else
         {
-            gridEmbDiv.Visible = false;
+            gridRaUpdateDiv.Visible = false;
 
             // Clear the values of follwing dropdowns on the server side
             ddWOName.Items.Clear();
@@ -150,7 +171,7 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
         }
         else
         {
-            gridEmbDiv.Visible = false;
+            gridRaUpdateDiv.Visible = false;
 
             // Clear the values of follwing dropdowns on the server side
             ddVendorName.Items.Clear();
@@ -295,11 +316,187 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
         Bind_RaHeaser();
     }
 
+    private DataTable getRaHeader(int rowId)
+    {
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            con.Open();
+            string sql = "SELECT * FROM RaHeader874 where RefID=@RefID";
+            SqlCommand cmd = new SqlCommand(sql, con);
+            cmd.Parameters.AddWithValue("@RefID", rowId.ToString());
+            cmd.ExecuteNonQuery();
+
+            SqlDataAdapter ad = new SqlDataAdapter(cmd);
+            DataTable dt = new DataTable();
+            ad.Fill(dt);
+            con.Close();
+
+            return dt;
+        }
+    }
+
+    private DataTable getRaDetails(int rowId)
+    {
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            con.Open();
+            string sql = "SELECT * FROM RaDetails874 where RaHeaderID=@RaHeaderID";
+            SqlCommand cmd = new SqlCommand(sql, con);
+            cmd.Parameters.AddWithValue("@RaHeaderID", rowId.ToString());
+            cmd.ExecuteNonQuery();
+
+            SqlDataAdapter ad = new SqlDataAdapter(cmd);
+            DataTable dt = new DataTable();
+            ad.Fill(dt);
+            con.Close();
+
+            return dt;
+        }
+    }
+
+    private DataTable getAccountHead(int RaHeaderID)
+    {
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            con.Open();
+            string sql = "SELECT * FROM RaTax874 WHERE RaHeaderID = @RaHeaderID";
+            SqlCommand cmd = new SqlCommand(sql, con);
+            cmd.Parameters.AddWithValue("@RaHeaderID", RaHeaderID);
+            cmd.ExecuteNonQuery();
+
+            SqlDataAdapter ad = new SqlDataAdapter(cmd);
+            DataTable dt = new DataTable();
+            ad.Fill(dt);
+            con.Close();
+
+            return dt;
+        }
+    }
+
+    //=============================={ Fill BoQ & Tax Head }============================================
+
+    protected void GridTax_RowDataBound(object sender, GridViewRowEventArgs e)
+    {
+        if (e.Row.RowType == DataControlRowType.DataRow && (e.Row.RowState & DataControlRowState.Edit) > 0)
+        {
+            // Set the row in edit mode
+            e.Row.RowState = e.Row.RowState ^ DataControlRowState.Edit;
+        }
+
+        if (e.Row.RowType == DataControlRowType.DataRow)
+        {
+            // fetching acount head or taxes
+            int RaHeaderID = Convert.ToInt32(Session["RowID"]);
+            DataTable accountHeadDT = getAccountHead(RaHeaderID);
+
+            // adding + / - dropdowns
+            DropDownList ddlAddLess = (DropDownList)e.Row.FindControl("AddLess");
+            if (ddlAddLess != null)
+            {
+                // Add options dynamically
+                ddlAddLess.Items.Add(new ListItem("+", "Add"));
+                ddlAddLess.Items.Add(new ListItem("-", "Less"));
+
+                // Set selected value based on the "AddLess" column in the DataTable
+                string addLessValue = accountHeadDT.Rows[e.Row.RowIndex]["AddLess"].ToString();
+
+                // Set the selected value in the DropDownList
+                ListItem selectedListItem = ddlAddLess.Items.FindByValue(addLessValue);
+                if (selectedListItem != null)
+                {
+                    selectedListItem.Selected = true;
+                }
+            }
+
+            // adding % / ₹ dropdowns
+            DropDownList ddlPerOrAmnt = (DropDownList)e.Row.FindControl("PerOrAmnt");
+            if (ddlPerOrAmnt != null)
+            {
+
+                // Add options dynamically
+                ddlPerOrAmnt.Items.Add(new ListItem("%", "Percentage"));
+                ddlPerOrAmnt.Items.Add(new ListItem("₹", "Amount"));
+            }
+        }
+    }
+
+    protected void btnReCalTax_Click(object sender, EventArgs e)
+    {
+        // inserting EMB header info
+        //InsertEmbHeader();
+    }
+
+    //========================================================================
+
+    private void Bind_Role_Update_Dropdowns(int rowId)
+    {
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            con.Open();
+
+            string sql = "select * from RaHeader874 where RaHeaderID = @RaHeaderID";
+            SqlCommand cmd = new SqlCommand(sql, con);
+            cmd.Parameters.AddWithValue("@RaHeaderID", rowId);
+
+            SqlDataAdapter ad = new SqlDataAdapter(cmd);
+            DataTable dt = new DataTable();
+            ad.Fill(dt);
+
+            ddProjectMaster.DataSource = dt;
+            ddProjectMaster.DataTextField = "RaProj";
+            ddProjectMaster.DataValueField = "RefID";
+            ddProjectMaster.DataBind();
+            ddProjectMaster.Items.Insert(0, new ListItem("------Select Project------", "0"));
+
+            ddWorkOrder.DataSource = dt;
+            ddWorkOrder.DataTextField = "RaWO";
+            ddWorkOrder.DataValueField = "RefID";
+            ddWorkOrder.DataBind();
+            ddWorkOrder.Items.Insert(0, new ListItem("------Select Work Order------", "0"));
+
+            ddVender.DataSource = dt;
+            ddVender.DataTextField = "RaVendor";
+            ddVender.DataValueField = "RefID";
+            ddVender.DataBind();
+            ddVender.Items.Insert(0, new ListItem("------Select Vendor------", "0"));
+
+            ddAbstractNo.DataSource = dt;
+            ddAbstractNo.DataTextField = "RaAbstNo";
+            ddAbstractNo.DataValueField = "RefID";
+            ddAbstractNo.DataBind();
+            ddAbstractNo.Items.Insert(0, new ListItem("------Select Abstract No.------", "0"));
+
+            con.Close();
+        }
+    }
+
     //=========================={ Button Click Event }==========================
 
     protected void btnNewRaBill_Click(object sender, EventArgs e)
     {
         Response.Redirect("../RABillNew.aspx");
+    }
+
+    protected void btnTruncate_Click(object sender, EventArgs e)
+    {
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            con.Open();
+
+            string sql = "truncate table RaHeader874";
+            SqlCommand cmd = new SqlCommand(sql, con);
+            cmd.ExecuteNonQuery();
+
+            string sql1 = "truncate table RaDetails874";
+            SqlCommand cmd1 = new SqlCommand(sql1, con);
+            cmd1.ExecuteNonQuery();
+
+            con.Close();
+        }
+
+        string message = "RA Header & RA Details truncated";
+        string script = $"alert('{message}');";
+        ScriptManager.RegisterStartupScript(this, this.GetType(), "messageScript", script, true);
     }
 
     protected void btnSearch_Click(object sender, EventArgs e)
@@ -313,7 +510,7 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
 
         if (ddProject.SelectedValue.ToString() == "0" && string.IsNullOrEmpty(ddWOName.SelectedValue) && string.IsNullOrEmpty(ddVendorName.SelectedValue))
         {
-            gridEmbDiv.Visible = true;
+            gridRaUpdateDiv.Visible = true;
         }
         else if (ddProject.SelectedValue.ToString() != "0" && ddWOName.SelectedValue.ToString() == "0" && string.IsNullOrEmpty(ddVendorName.SelectedValue))
         {
@@ -322,7 +519,7 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
 
             searchedEmbDT = getSearchedEmbHeader(projectRefID, "", "");
 
-            gridEmbDiv.Visible = true;
+            gridRaUpdateDiv.Visible = true;
 
             // binding the grid
             gridRaHeader.DataSource = searchedEmbDT;
@@ -337,7 +534,7 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
 
             searchedEmbDT = getSearchedEmbHeader(projectRefID, workOrderRefID, "");
 
-            gridEmbDiv.Visible = true;
+            gridRaUpdateDiv.Visible = true;
 
             // binding the grid
             gridRaHeader.DataSource = searchedEmbDT;
@@ -353,7 +550,7 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
 
             searchedEmbDT = getSearchedEmbHeader(projectRefID, workOrderRefID, vendorRefID);
 
-            gridEmbDiv.Visible = true;
+            gridRaUpdateDiv.Visible = true;
 
             // binding the grid
             gridRaHeader.DataSource = searchedEmbDT;
@@ -368,6 +565,44 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
         }
     }
 
+    protected void btnBasicAmount_Click(object sender, EventArgs e)
+    {
+        DataTable dt = (DataTable)Session["BoQDTUpdate"];
+
+        double basicAmount = 0;
+
+        if (dt != null)
+        {
+            // Iterate through each row in the GridView
+            foreach (GridViewRow row in gridDynamicBOQ.Rows)
+            {
+                TextBox boqQty = row.FindControl("BoqQtyMeas") as TextBox;
+                double qtyMeasuredValue = Convert.ToDouble(boqQty.Text);
+
+                int rowIndex = row.RowIndex;
+                double boqUnitRate = Convert.ToDouble(dt.Rows[rowIndex]["BoQItemRate"]);
+
+                if (qtyMeasuredValue != 0.00 && boqUnitRate != 0.00)
+                {
+                    double prod = (qtyMeasuredValue * boqUnitRate);
+
+                    // Perform operations with the value
+                    basicAmount = basicAmount + prod;
+                }
+
+                // You can break the loop if you only need the value from the first row
+                //break;
+            }
+
+            //btnSubmitBasicAmount.Enabled = true;
+
+            string basicAmountStr = basicAmount.ToString("N0");
+
+            txtBasicAmt.CssClass = "form-control fw-normal border border-2";
+            txtBasicAmt.Text = basicAmountStr;
+        }
+    }
+
     protected void GrdUser_RowCommand(object sender, GridViewCommandEventArgs e)
     {
         if (e.CommandName == "lnkView")
@@ -375,18 +610,91 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
             int rowId = Convert.ToInt32(e.CommandArgument);
             Session["RowID"] = rowId;
 
-            gridEmbDiv.Visible = false;
-            //divEMBUpdate.Visible = true;
-            //embDetailsUpdate.Visible = true;
+            gridRaUpdateDiv.Visible = false;
+            divRAUpdate.Visible = true;
+            //raDetailsUpdate.Visible = true;
 
             divTopSearch.Visible = false;
             //btnSubmitBasicAmount.Enabled = true;
 
-            // fill EMB header
-            //UpdateEmbCaculations(rowId);
+            // getting all dropdowns
+            Bind_Role_Update_Dropdowns(rowId);
+
+            // fill RA header
+            updateRAHeader(rowId);
 
             // fill EMB Details
-            //updateEmbDetails(rowId);
+            updateEmbDetails(rowId);
+        }
+    }
+
+    private void updateRAHeader(int rowId)
+    {
+        // fetching EMB header
+        DataTable raHeaderDT = getRaHeader(rowId);
+
+        // account head datatable
+        //autoFilltaxHeads(raHeaderDT, );
+
+        // fill Account Head grid
+        //autoFilltaxHeads();
+
+        if (raHeaderDT.Rows.Count > 0)
+        {
+            // drop downs
+            ddProjectMaster.SelectedIndex = 1;
+            ddWorkOrder.SelectedIndex = 1;
+            ddVender.SelectedIndex = 1;
+            ddAbstractNo.SelectedIndex = 1;
+
+            // header non-dropdowns
+            txtWoAmnt.Text = raHeaderDT.Rows[0]["RaWoAmount"].ToString();
+            txtUpToTotalRaAmnt.Text = raHeaderDT.Rows[0]["RaBillBookAmnt"].ToString();
+            txtRemarks.Value = raHeaderDT.Rows[0]["RaRemarks"].ToString();
+
+            // date
+            DateTime billDate = DateTime.Parse(raHeaderDT.Rows[0]["RaBillDate"].ToString());
+            DateTime payDueDate = DateTime.Parse(raHeaderDT.Rows[0]["RaPayDueDate"].ToString());
+
+            dateBillDate.Text = billDate.ToString("yyyy-MM-dd");
+            datePayDueDate.Text = payDueDate.ToString("yyyy-MM-dd");
+
+            txtBillNo.Text = raHeaderDT.Rows[0]["RaBillNo"].ToString();
+            txtBasicAmt.Text = raHeaderDT.Rows[0]["RaBasicAmount"].ToString();
+
+            // tax heads data
+            txtTotalDeduct.Text = raHeaderDT.Rows[0]["RaTotalDeduct"].ToString();
+            txtTotalAdd.Text = raHeaderDT.Rows[0]["RaTotalAdd"].ToString();
+            txtNetAmnt.Text = raHeaderDT.Rows[0]["RaNetAmount"].ToString();
+
+            gridEmbDiv.Visible = true;
+        }
+        else
+        {
+            string message = "No RA Header data Found !";
+            string script = $"alert('{message}');";
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "messageScript", script, true);
+        }
+    }
+
+    private void updateEmbDetails(int rowId)
+    {
+        // fetching EMB details
+        DataTable dt = getRaDetails(rowId);
+        Session["BoQDTUpdate"] = dt;
+
+        if (dt.Rows.Count > 0)
+        {
+            
+
+            gridDynamicBOQ.DataSource = dt;
+            gridDynamicBOQ.DataBind();
+        }
+        else
+        {
+            string message1 = "No RA Details Found !";
+            string script1 = $"alert('{message1}');";
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "messageScript", script1, true);
         }
     }
 }
