@@ -63,6 +63,20 @@ $(document).ready(function () {
         allowClear: false,
     });
 
+
+
+    $('#ddDocType').select2({
+        theme: 'classic',
+        placeholder: 'Select here.....',
+        allowClear: false,
+    });
+
+    $('#ddStage').select2({
+        theme: 'classic',
+        placeholder: 'Select here.....',
+        allowClear: false,
+    });
+
     //=====================================================
 
 
@@ -118,6 +132,21 @@ $(document).ready(function () {
         });
 
         $('#ddAbstractNo').select2({
+            theme: 'classic',
+            placeholder: 'Select here.....',
+            allowClear: false,
+        });
+
+
+
+
+        $('#ddDocType').select2({
+            theme: 'classic',
+            placeholder: 'Select here.....',
+            allowClear: false,
+        });
+
+        $('#ddStage').select2({
             theme: 'classic',
             placeholder: 'Select here.....',
             allowClear: false,

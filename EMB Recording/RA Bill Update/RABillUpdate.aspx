@@ -20,7 +20,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
     <script src="RABillUpdate.js"></script>
-    <link rel="stylesheet" type="text/css" href="RABillUpdate.css" />
+    <link rel="stylesheet" type="text/css" href="RABillUpdate.css"/>
 
 </head>
 <body>
@@ -137,6 +137,10 @@
                 </div>
             </div>
         </div>
+
+
+
+
 
 
 
@@ -333,7 +337,7 @@
 
                     <div class="col-md-12">
                         <asp:GridView ShowHeaderWhenEmpty="true" ID="GridTax" runat="server" AutoGenerateColumns="false" OnRowDataBound="GridTax_RowDataBound"
-                            CssClass="table text-center">
+                            CssClass="table text-center shadow">
                             <HeaderStyle CssClass="align-middle table-secondary fw-light" />
                             <Columns>
                                 <asp:BoundField DataField="DeductionHead" HeaderText="Deduction Head" ReadOnly="true" ItemStyle-Font-Size="15px" ItemStyle-CssClass="col-md-4 align-middle text-start fw-light" />
@@ -375,7 +379,7 @@
 
                 <!-- Total Taxes & Net Amount -->
 
-                <div class="mx-2 mb-2">
+                <div class="mb-2">
                     <div class="row mb-3">
                         <div class="col-md-9 align-self-end">
                             <!--  -->
@@ -410,6 +414,101 @@
                                 <span class="input-group-text fs-5 fw-light">₹</span>
                                 <asp:TextBox runat="server" ID="txtNetAmnt" CssClass="form-control fw-lighter border border-2" ReadOnly="true"></asp:TextBox>
                             </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
+
+                <!-- File Upload -->
+
+                <hr class="border border-1 border-dark-subtle mt-4" />
+                <div class="text-start">
+                    <div class="fw-normal fs-5 fw-medium text-body-secondary">
+                        <asp:Literal ID="Literal20" Text="Document Upload" runat="server"></asp:Literal>
+                    </div>
+                </div>
+                <hr class="border border-1 border-dark-subtle" />
+
+                <div class="row mb-3 mb-2">
+                    <div class="col-md-4 align-self-end">
+                        <div class="form-group m-0">
+                            <div class="mb-1 text-body-tertiary fw-semibold fs-6">
+                                <asp:Literal ID="Literal21" Text="Bill Date" runat="server">
+                                    Document Type
+                                    <em style="color: red"></em>
+                                </asp:Literal>
+                            </div>
+                            <div>
+                                <asp:RequiredFieldValidator ID="RequiredFieldValidator8" ControlToValidate="ddDocType" CssClass="invalid-feedback" InitialValue="" runat="server" ErrorMessage="(Please select the doc type)" SetFocusOnError="True" Display="Dynamic" ToolTip="Required"></asp:RequiredFieldValidator>
+                            </div>
+                            <asp:DropDownList ID="ddDocType" ClientIDMode="Static" runat="server" class="form-control is-invalid"></asp:DropDownList>
+                        </div>
+                    </div>
+                    <div class="col-md-4 align-self-end">
+                        <div class="form-group m-0">
+                            <div class="mb-1 text-body-tertiary fw-semibold fs-6">
+                                <asp:Literal ID="Literal22" Text="Bill No." runat="server">
+                                    Stages
+                                    <em style="color: red"></em>
+                                </asp:Literal>
+                            </div>
+                            <div>
+                                <asp:RequiredFieldValidator ID="RequiredFieldValidator7" ControlToValidate="ddStage" CssClass="invalid-feedback" InitialValue="" runat="server" ErrorMessage="(Please select the stage)" SetFocusOnError="True" Display="Dynamic" ToolTip="Required"></asp:RequiredFieldValidator>
+                            </div>
+                            <asp:DropDownList ID="ddStage" ClientIDMode="Static" runat="server" class="form-control is-invalid"></asp:DropDownList>
+                        </div>
+                    </div>
+                    <div class="col-md-4 align-self-end">
+                        <div class="form-group">
+                            <div class="text-body-tertiary fw-semibold fs-6">
+                                <label for="fileDoc" class="form-label">
+                                    Upload Document
+                                <em style="color: red"></em>
+                                </label>
+                            </div>
+                            <div class="justify-content-center">
+                                <div class="input-group has-validation">
+                                    <asp:FileUpload ID="fileDoc" runat="server" CssClass="form-control" aria-describedby="inputGroupPrepend"  />
+                                    <asp:Button ID="btnDocUpload" runat="server" OnClick="btnDocUpload_Click" Text="Upload" AutoPost="true" CssClass="btn btn-outline-secondary" />
+                                    <div class="invalid-feedback">
+                                        Please choose a file
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Document Grid -->
+
+                <div class="mt-5">
+                    <asp:GridView ShowHeaderWhenEmpty="true" ID="GridDocument" runat="server" AutoGenerateColumns="false" OnRowDataBound="GridTax_RowDataBound"
+                        CssClass="table table-bordered border border-light-subtle text-start mt-3">
+                        <HeaderStyle CssClass="align-middle table-secondary fw-light fs-6" />
+                        <Columns>
+                            <asp:BoundField DataField="DocType" HeaderText="Document Type" ReadOnly="true" ItemStyle-Font-Size="15px" ItemStyle-CssClass="align-middle text-start fw-light" />
+                            <asp:BoundField DataField="StageLevel" HeaderText="Levels" ReadOnly="true" ItemStyle-Font-Size="15px" ItemStyle-CssClass="align-middle text-start fw-light" />
+                            <asp:BoundField DataField="DocName" HeaderText="File Name" ReadOnly="true" ItemStyle-Font-Size="15px" ItemStyle-CssClass="align-middle text-start fw-light" />
+
+                            <asp:TemplateField HeaderText="View Document" ItemStyle-Font-Size="15px" ItemStyle-CssClass="align-middle text-start fw-light">
+                                <ItemTemplate>
+                                    <asp:HyperLink ID="DocPath" runat="server" Text="View Uploaded Document" NavigateUrl='<%# Eval("DocPath") %>' Target="_blank" CssClass="text-decoration-none"></asp:HyperLink>
+                                </ItemTemplate>
+                            </asp:TemplateField>
+                        </Columns>
+                    </asp:GridView>
+                </div>
+
+                <hr class="border border-2 border-dark-subtle mt-4" />
+
+                <!-- Submit Button -->
+
+                <div class="">
+                    <div class="mt-5 mb-2">
+                        <div class="text-end">
+                            <asp:Button ID="btnSubmit" runat="server" Text="Submit" OnClick="btnSubmit_Click" CssClass="btn btn-primary text-white shadow mb-5" />
                         </div>
                     </div>
                 </div>

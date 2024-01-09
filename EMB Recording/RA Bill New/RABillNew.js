@@ -143,6 +143,22 @@ $(document).ready(function () {
     });
 });
 
+//------======={ final submit choosen file grid check }=======------
+function validateAndSubmit() {
+    var fileUpload = document.getElementById('<%= fileDoc.ClientID %>');
+    var gridView = document.getElementById('<%= GridDocument.ClientID %>');
+
+    // Check if at least one file is uploaded and the GridView has rows
+    if (fileUpload.files.length > 0 && gridView.rows.length > 0) {
+        // Allow the form submission
+        return true;
+    } else {
+        // Display an alert if the conditions are not met
+        alert('Please choose at least one file and make sure it is present in the GridView.');
+        return false;
+    }
+}
+
 
 
 

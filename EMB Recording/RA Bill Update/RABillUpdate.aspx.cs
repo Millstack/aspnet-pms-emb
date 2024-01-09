@@ -1,9 +1,11 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Net.Http;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -16,32 +18,35 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
     string workOrderRefID;
     string vendorRefID;
 
+    string selectedProjectMasterRefID;
+    string selectedWorkOrderRefID;
+    string selectedVendorRefID;
+    string selectedAbstractNO;
+
     protected void Page_Load(object sender, EventArgs e)
     {
         if (!IsPostBack)
         {
-            //Bind_RaHeaser();
-            //Bind_Role_Project();
+            Bind_RaHeader();
+            Bind_Role_Project();
 
-            DirectSQLQuery();
+            //DirectSQLQuery();
         }
     }
 
-    private void Bind_RaHeaser()
+    private void Bind_RaHeader()
     {
         using (SqlConnection con = new SqlConnection(connectionString))
         {
             con.Open();
             string sql = "select * from RaHeader874";
             SqlCommand cmd = new SqlCommand(sql, con);
+            cmd.ExecuteNonQuery();
 
             SqlDataAdapter ad = new SqlDataAdapter(cmd);
             DataTable dt = new DataTable();
             ad.Fill(dt);
             con.Close();
-
-            gridRaHeader.DataSource = dt;
-            gridRaHeader.DataBind();
         }
     }
 
@@ -73,6 +78,7 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
             con.Open();
             string sql = "select * from ProjectMaster874";
             SqlCommand cmd = new SqlCommand(sql, con);
+            cmd.ExecuteNonQuery();
 
             SqlDataAdapter ad = new SqlDataAdapter(cmd);
             DataTable dt = new DataTable();
@@ -97,6 +103,7 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
             string sql = "select * from WorkOrder874 where woProject = @woProject";
             SqlCommand cmd = new SqlCommand(sql, con);
             cmd.Parameters.AddWithValue("@woProject", projectDT.Rows[0]["RefID"].ToString());
+            cmd.ExecuteNonQuery();
 
             SqlDataAdapter ad = new SqlDataAdapter(cmd);
             DataTable dt = new DataTable();
@@ -121,6 +128,7 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
             con.Open();
             string sql = "select * from VendorMaster874";
             SqlCommand cmd = new SqlCommand(sql, con);
+            cmd.ExecuteNonQuery();
 
             SqlDataAdapter ad = new SqlDataAdapter(cmd);
             DataTable dt = new DataTable();
@@ -132,6 +140,51 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
             ddVendorName.DataValueField = "RefID";
             ddVendorName.DataBind();
             ddVendorName.Items.Insert(0, new ListItem("------Select Vendor------", "0"));
+        }
+    }
+
+    public void Bind_Role_DocType()
+    {
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            con.Open();
+            string sql = "SELECT * FROM DocType874";
+            SqlCommand cmd = new SqlCommand(sql, con);
+            cmd.ExecuteNonQuery();
+
+            SqlDataAdapter ad = new SqlDataAdapter(cmd);
+
+            DataTable dt = new DataTable();
+            ad.Fill(dt);
+            con.Close();
+
+            ddDocType.DataSource = dt;
+            ddDocType.DataTextField = "DocType";
+            ddDocType.DataValueField = "DocType";
+            ddDocType.DataBind();
+            ddDocType.Items.Insert(0, new ListItem("------Select Doc------", "0"));
+        }
+    }
+
+    public void Bind_Role_Stages()
+    {
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            con.Open();
+            string sql = "SELECT * FROM DocType874";
+            SqlCommand cmd = new SqlCommand(sql, con);
+            cmd.ExecuteNonQuery();
+
+            SqlDataAdapter ad = new SqlDataAdapter(cmd);
+            DataTable dt = new DataTable();
+            ad.Fill(dt);
+            con.Close();
+
+            ddStage.DataSource = dt;
+            ddStage.DataTextField = "DocType";
+            ddStage.DataValueField = "DocType";
+            ddStage.DataBind();
+            ddStage.Items.Insert(0, new ListItem("------Select Stage------", "0"));
         }
     }
 
@@ -244,6 +297,24 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
         }
     }
 
+    private DataTable getAbstractNo(string selectedAbstractNO)
+    {
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            con.Open();
+            string sql = "SELECT * FROM AbstApproval874 where AbsNo=@AbsNo";
+            SqlCommand cmd = new SqlCommand(sql, con);
+            cmd.Parameters.AddWithValue("@AbsNo", selectedAbstractNO.ToString());
+            cmd.ExecuteNonQuery();
+
+            SqlDataAdapter ad = new SqlDataAdapter(cmd);
+            DataTable dt = new DataTable();
+            ad.Fill(dt);
+            con.Close();
+            return dt;
+        }
+    }
+
     private DataTable getSearchedEmbHeader(string project, string workOrder, string vendor)
     {
         DataTable dt = new DataTable();
@@ -257,16 +328,17 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
             using (SqlConnection con = new SqlConnection(connectionString))
             {
                 con.Open();
-                string sql = "SELECT * FROM EmbMaster874 where EmbPM = @EmbPM and EmbWO = @EmbWO and EmbVenN = @EmbVenN";
+                string sql = "SELECT * FROM RaHeader874 where RaProj = @RaProj and RaWO = @RaWO and RaVendor = @RaVendor";
                 SqlCommand cmd = new SqlCommand(sql, con);
-                cmd.Parameters.AddWithValue("@EmbPM", projectDT.Rows[0]["ProjectName"].ToString());
-                cmd.Parameters.AddWithValue("@EmbWO", workOrderDT.Rows[0]["woTendrNo"].ToString());
-                cmd.Parameters.AddWithValue("@EmbVenN", vendorDT.Rows[0]["vName"].ToString());
+                cmd.Parameters.AddWithValue("@RaProj", projectDT.Rows[0]["ProjectName"].ToString());
+                cmd.Parameters.AddWithValue("@RaWO", workOrderDT.Rows[0]["woTendrNo"].ToString());
+                cmd.Parameters.AddWithValue("@RaVendor", vendorDT.Rows[0]["vName"].ToString());
                 cmd.ExecuteNonQuery();
 
                 SqlDataAdapter ad = new SqlDataAdapter(cmd);
                 ad.Fill(dt);
                 con.Close();
+                return dt;
             }
         }
         else if (project != "" && workOrder != "")
@@ -277,15 +349,16 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
             using (SqlConnection con = new SqlConnection(connectionString))
             {
                 con.Open();
-                string sql = "SELECT * FROM EmbMaster874 where EmbPM = @EmbPM and EmbWO = @EmbWO";
+                string sql = "SELECT * FROM RaHeader874 where RaProj = @RaProj and RaWO = @RaWO and RaVendor = @RaVendor";
                 SqlCommand cmd = new SqlCommand(sql, con);
-                cmd.Parameters.AddWithValue("@EmbPM", projectDT.Rows[0]["ProjectName"].ToString());
-                cmd.Parameters.AddWithValue("@EmbWO", workOrderDT.Rows[0]["woTendrNo"].ToString());
+                cmd.Parameters.AddWithValue("@RaProj", projectDT.Rows[0]["ProjectName"].ToString());
+                cmd.Parameters.AddWithValue("@RaWO", workOrderDT.Rows[0]["woTendrNo"].ToString());
                 cmd.ExecuteNonQuery();
 
                 SqlDataAdapter ad = new SqlDataAdapter(cmd);
                 ad.Fill(dt);
                 con.Close();
+                return dt;
             }
         }
         else if (project != "")
@@ -295,14 +368,15 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
             using (SqlConnection con = new SqlConnection(connectionString))
             {
                 con.Open();
-                string sql = "SELECT * FROM EmbMaster874 where EmbPM = @EmbPM";
+                string sql = "SELECT * FROM RaHeader874 where RaProj = @RaProj and RaWO = @RaWO and RaVendor = @RaVendor";
                 SqlCommand cmd = new SqlCommand(sql, con);
-                cmd.Parameters.AddWithValue("@EmbPM", projectDT.Rows[0]["ProjectName"].ToString());
+                cmd.Parameters.AddWithValue("@RaProj", projectDT.Rows[0]["ProjectName"].ToString());
                 cmd.ExecuteNonQuery();
 
                 SqlDataAdapter ad = new SqlDataAdapter(cmd);
                 ad.Fill(dt);
                 con.Close();
+                return dt;
             }
         }
 
@@ -313,7 +387,7 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
     {
         //binding GridView to PageIndex object
         gridRaHeader.PageIndex = e.NewPageIndex;
-        Bind_RaHeaser();
+        Bind_RaHeader();
     }
 
     private DataTable getRaHeader(int rowId)
@@ -330,7 +404,6 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
             DataTable dt = new DataTable();
             ad.Fill(dt);
             con.Close();
-
             return dt;
         }
     }
@@ -349,7 +422,6 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
             DataTable dt = new DataTable();
             ad.Fill(dt);
             con.Close();
-
             return dt;
         }
     }
@@ -361,14 +433,13 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
             con.Open();
             string sql = "SELECT * FROM RaTax874 WHERE RaHeaderID = @RaHeaderID";
             SqlCommand cmd = new SqlCommand(sql, con);
-            cmd.Parameters.AddWithValue("@RaHeaderID", RaHeaderID);
+            cmd.Parameters.AddWithValue("@RaHeaderID", RaHeaderID.ToString());
             cmd.ExecuteNonQuery();
 
             SqlDataAdapter ad = new SqlDataAdapter(cmd);
             DataTable dt = new DataTable();
             ad.Fill(dt);
             con.Close();
-
             return dt;
         }
     }
@@ -433,14 +504,15 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
         using (SqlConnection con = new SqlConnection(connectionString))
         {
             con.Open();
-
             string sql = "select * from RaHeader874 where RaHeaderID = @RaHeaderID";
             SqlCommand cmd = new SqlCommand(sql, con);
-            cmd.Parameters.AddWithValue("@RaHeaderID", rowId);
+            cmd.Parameters.AddWithValue("@RaHeaderID", rowId.ToString());
+            cmd.ExecuteNonQuery();
 
             SqlDataAdapter ad = new SqlDataAdapter(cmd);
             DataTable dt = new DataTable();
             ad.Fill(dt);
+            con.Close();
 
             ddProjectMaster.DataSource = dt;
             ddProjectMaster.DataTextField = "RaProj";
@@ -465,8 +537,6 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
             ddAbstractNo.DataValueField = "RefID";
             ddAbstractNo.DataBind();
             ddAbstractNo.Items.Insert(0, new ListItem("------Select Abstract No.------", "0"));
-
-            con.Close();
         }
     }
 
@@ -491,6 +561,14 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
             SqlCommand cmd1 = new SqlCommand(sql1, con);
             cmd1.ExecuteNonQuery();
 
+            string sql2 = "truncate table RaTax874";
+            SqlCommand cmd2 = new SqlCommand(sql2, con);
+            cmd2.ExecuteNonQuery();
+
+            string sql3 = "truncate table DocUpload874";
+            SqlCommand cmd3 = new SqlCommand(sql3, con);
+            cmd3.ExecuteNonQuery();
+
             con.Close();
         }
 
@@ -506,10 +584,26 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
 
     private void BindGridView()
     {
-        DataTable searchedEmbDT;
+        DataTable searchedEmbDT = new DataTable();
 
         if (ddProject.SelectedValue.ToString() == "0" && string.IsNullOrEmpty(ddWOName.SelectedValue) && string.IsNullOrEmpty(ddVendorName.SelectedValue))
         {
+            using (SqlConnection con = new SqlConnection(connectionString))
+            {
+                con.Open();
+                string sql = "select * from RaHeader874";
+                SqlCommand cmd = new SqlCommand(sql, con);
+                cmd.ExecuteNonQuery();
+
+                SqlDataAdapter ad = new SqlDataAdapter(cmd);
+                ad.Fill(searchedEmbDT);
+                con.Close();
+
+                // binding the grid
+                gridRaHeader.DataSource = searchedEmbDT;
+                gridRaHeader.DataBind();
+            }
+
             gridRaUpdateDiv.Visible = true;
         }
         else if (ddProject.SelectedValue.ToString() != "0" && ddWOName.SelectedValue.ToString() == "0" && string.IsNullOrEmpty(ddVendorName.SelectedValue))
@@ -612,6 +706,7 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
 
             gridRaUpdateDiv.Visible = false;
             divRAUpdate.Visible = true;
+            btnReCalTax.Enabled = true;
             //raDetailsUpdate.Visible = true;
 
             divTopSearch.Visible = false;
@@ -625,6 +720,13 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
 
             // fill EMB Details
             updateEmbDetails(rowId);
+
+            // binding document dropdowns
+            Bind_Role_DocType();
+            Bind_Role_Stages();
+
+            // binding doc gridview
+            updateDocUploadGrid(rowId);
         }
     }
 
@@ -632,12 +734,6 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
     {
         // fetching EMB header
         DataTable raHeaderDT = getRaHeader(rowId);
-
-        // account head datatable
-        //autoFilltaxHeads(raHeaderDT, );
-
-        // fill Account Head grid
-        //autoFilltaxHeads();
 
         if (raHeaderDT.Rows.Count > 0)
         {
@@ -685,16 +781,200 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
 
         if (dt.Rows.Count > 0)
         {
-            
-
+            // BoQ Grid
             gridDynamicBOQ.DataSource = dt;
             gridDynamicBOQ.DataBind();
+
+            // Tax Head Grid
+            DataTable accountHeadDT = getAccountHead(rowId);
+            GridTax.DataSource = accountHeadDT;
+            GridTax.DataBind();
+
         }
         else
         {
             string message1 = "No RA Details Found !";
             string script1 = $"alert('{message1}');";
             ScriptManager.RegisterStartupScript(this, this.GetType(), "messageScript", script1, true);
+        }
+    }
+
+    private void updateDocUploadGrid(int rowId)
+    {
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            con.Open();
+            string sql = "select * from DocUpload874 where RaHeaderID = @RaHeaderID";
+            SqlCommand cmd = new SqlCommand(sql, con);
+            cmd.Parameters.AddWithValue("@RaHeaderID", rowId);
+            cmd.ExecuteNonQuery();
+
+            SqlDataAdapter ad = new SqlDataAdapter(cmd);
+            DataTable dt = new DataTable();
+            ad.Fill(dt);
+            con.Close();
+
+            // binding document details gridview
+            GridDocument.DataSource = dt;
+            GridDocument.DataBind();
+
+            // Saving DataTable to ViewState for further use to additon doc upload
+            ViewState["DocDetailsDataTable"] = dt;
+        }
+    }
+
+    //=========================={ File Upload Event }==========================
+
+    protected void btnDocUpload_Click(object sender, EventArgs e)
+    {
+        // setting the file size in web.config file (web.config should not be read only)
+        //settingHttpRuntimeForFileSize();
+
+        string docTypeCode = ddDocType.SelectedValue;
+        string stageCode = ddStage.SelectedValue;
+
+        if (fileDoc.HasFile)
+        {
+            string FileExtension = System.IO.Path.GetExtension(fileDoc.FileName);
+
+            if (FileExtension == ".xlsx" || FileExtension == ".xls")
+            {
+
+            }
+
+            // file name
+            string onlyFileNameWithExtn = fileDoc.FileName.ToString();
+
+            // getting unique file name
+            string strFileName = GenerateUniqueId(onlyFileNameWithExtn);
+
+            // saving and getting file path
+            string filePath = getServerFilePath(strFileName);
+
+            // Retrieve DataTable from ViewState or create a new one
+            DataTable dt = ViewState["DocDetailsDataTable"] as DataTable ?? CreateDocDetailsDataTable();
+
+            // filling document details datatable
+            AddRowToDocDetailsDataTable(dt, docTypeCode, stageCode, onlyFileNameWithExtn, filePath);
+
+            // Save DataTable to ViewState
+            ViewState["DocDetailsDataTable"] = dt;
+
+            if (dt.Rows.Count > 0)
+            {
+                // binding document details gridview
+                GridDocument.DataSource = dt;
+                GridDocument.DataBind();
+
+                // alert pop-up with only message
+                //string message = "File has been added";
+                //string script = $"alert('{message}');";
+                //ScriptManager.RegisterStartupScript(this, this.GetType(), "messageScript", script, true);
+            }
+        }
+    }
+
+    private string GenerateUniqueId(string strFileName)
+    {
+        long timestamp = DateTime.Now.Ticks;
+        //string guid = Guid.NewGuid().ToString("N"); //N to remove hypen "-" from GUIDs
+        string guid = Guid.NewGuid().ToString(); //N to remove hypen "-" from GUIDs
+        string uniqueID = timestamp + "_" + guid + "_" + strFileName;
+        return uniqueID;
+    }
+
+    private string getServerFilePath(string strFileName)
+    {
+        string orgFilePath = Server.MapPath("~/Portal/Public/" + strFileName);
+
+        // saving file
+        fileDoc.SaveAs(orgFilePath);
+
+        //string filePath = Server.MapPath("~/Portal/Public/" + strFileName);
+        //file:///C:/HostingSpaces/PAWAN/cdsmis.in/wwwroot/Pms2/Portal/Public/638399011215544557_926f9320-275e-49ad-8f59-32ecb304a9f1_EMB%20Recording.pdf
+
+        // replacing server-specific path with the desired URL
+        string baseUrl = "http://101.53.144.92/pms2/Ginie/External?url=..";
+        string relativePath = orgFilePath.Replace(Server.MapPath("~/Portal/Public/"), "Portal/Public/");
+
+        // Full URL for the hyperlink
+        string fullUrl = $"{baseUrl}/{relativePath}";
+
+        return fullUrl;
+    }
+
+    private DataTable CreateDocDetailsDataTable()
+    {
+        DataTable dt = new DataTable();
+
+        // document type
+        DataColumn docType = new DataColumn("docType", typeof(string));
+        dt.Columns.Add(docType);
+
+        // stage level
+        DataColumn stageLevel = new DataColumn("stageLevel", typeof(string));
+        dt.Columns.Add(stageLevel);
+
+        // file name
+        DataColumn DocName = new DataColumn("DocName", typeof(string));
+        dt.Columns.Add(DocName);
+
+        // Doc uploaded path
+        DataColumn DocPath = new DataColumn("DocPath", typeof(string));
+        dt.Columns.Add(DocPath);
+
+        return dt;
+    }
+
+    private void AddRowToDocDetailsDataTable(DataTable dt, string docTypeCode, string stageCode, string onlyFileNameWithExtn, string filePath)
+    {
+        // Create a new row
+        DataRow row = dt.NewRow();
+
+        // Set values for the new row
+        row["docType"] = docTypeCode;
+        row["stageLevel"] = stageCode;
+        row["DocName"] = onlyFileNameWithExtn;
+        row["DocPath"] = filePath;
+
+        // Add the new row to the DataTable
+        dt.Rows.Add(row);
+    }
+
+    //=========================={ Submit Button Event }==========================
+
+    protected void btnSubmit_Click(object sender, EventArgs e)
+    {
+        int RaHeaderID = Convert.ToInt32(Session["RowID"]);
+
+        // Update RA Header
+        updateRaheader(RaHeaderID);
+
+        // Update RA Details
+        updateRaDetails(RaHeaderID);
+    }
+
+    private void updateRaheader(int RaHeaderID)
+    {
+        try
+        {
+
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+
+    private void updateRaDetails(int RaHeaderID)
+    {
+        try
+        {
+
+        }
+        catch(Exception ex)
+        {
+
         }
     }
 }

@@ -1,13 +1,17 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Net.Http;
+using System.Text;
 using System.Web;
 using System.Web.Configuration;
 using System.Web.UI;
 using System.Web.UI.WebControls;
+
 
 public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
 {
@@ -26,6 +30,16 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
         if (!IsPostBack)
         {
             Bind_Role_ProjectMaster();
+
+            //string sql = "select * from WorkOrder874";
+
+            //Dictionary<string, string> para = new Dictionary<string, string>();
+            ////para["LogId"] = "Milind";
+
+            //DataTable dt = new DataTable();
+
+            //DAL dal = new DAL();
+            //dt = dal.GetDataTable(sql, para);
         }
     }
 
@@ -162,7 +176,7 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
         using (SqlConnection con = new SqlConnection(connectionString))
         {
             con.Open();
-            string sql = "SELECT * FROM DocType874";
+            string sql = "select * from WorkStage874";
             SqlCommand cmd = new SqlCommand(sql, con);
             cmd.ExecuteNonQuery();
 
@@ -172,10 +186,10 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
             con.Close();
 
             ddStage.DataSource = dt;
-            ddStage.DataTextField = "DocType";
-            ddStage.DataValueField = "DocType";
+            ddStage.DataTextField = "StageLevel";
+            ddStage.DataValueField = "StageLevel";
             ddStage.DataBind();
-            ddStage.Items.Insert(0, new ListItem("------Select Stage------", "0"));
+            ddStage.Items.Insert(0, new ListItem("------Select Stage Level------", "0"));
         }
     }
 
@@ -285,7 +299,6 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
             DataTable dt = new DataTable();
             ad.Fill(dt);
             con.Close();
-
             return dt;
         }
     }
@@ -304,7 +317,6 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
             DataTable dt = new DataTable();
             ad.Fill(dt);
             con.Close();
-
             return dt;
         }
     }
@@ -323,7 +335,6 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
             DataTable dt = new DataTable();
             ad.Fill(dt);
             con.Close();
-
             return dt;
         }
     }
@@ -342,7 +353,6 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
             DataTable dt = new DataTable();
             ad.Fill(dt);
             con.Close();
-
             return dt;
         }
     }
@@ -361,7 +371,6 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
             DataTable dt = new DataTable();
             ad.Fill(dt);
             con.Close();
-
             return dt;
         }
     }
@@ -379,7 +388,6 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
             DataTable dt = new DataTable();
             ad.Fill(dt);
             con.Close();
-
             return dt;
         }
     }
@@ -498,6 +506,7 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
 
         // fetching acount head or taxes
         DataTable accountHeadDT = getAccountHead();
+        Session["AccountHeadDT"] = accountHeadDT;
 
         // binding document dropdowns
         Bind_Role_DocType();
@@ -606,6 +615,7 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
 
             // Save DataTable to ViewState
             ViewState["DocDetailsDataTable"] = dt;
+            Session["DocuUploadDT"] = dt;
 
             if (dt.Rows.Count > 0)
             {
@@ -614,11 +624,6 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
                 GridDocument.DataBind();
 
                 btnSubmit.Enabled = true;
-
-                // alert pop-up with only message
-                //string message = "File has been added";
-                //string script = $"alert('{message}');";
-                //ScriptManager.RegisterStartupScript(this, this.GetType(), "messageScript", script, true);
             }
         }
     }
@@ -777,6 +782,18 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
 
             // inserting EMB details
             insertRaDetails(RaRefID);
+
+            // inserting tax heads
+            insertActionHead(RaRefID);
+
+            // insert uploaded documents from gridview
+            insertUploadedDocuments(RaRefID);
+
+            // redirect to main page
+            string message = "Records Inserted Successfully !";
+            string href = "Update/RABillUpdate.aspx";
+            string script = $"alert('{message}');location.href = '{href}';";
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "messageScript", script, true);
         }
     }
 
@@ -803,6 +820,11 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
                         // current uploaded boq index, to be used for updating the original value
                         // string currentBoQRefID = dt.Rows[rowIndex]["RefID"].ToString();
 
+                        // alert pop-up with only message
+                        string message1 = "Account Head Count: " + dt.Rows.Count;
+                        string script1 = $"alert('{message1}');";
+                        ScriptManager.RegisterStartupScript(this, this.GetType(), "messageScript", script1, true);
+
                         string boqItemName = dt.Rows[rowIndex]["BoQItemName"].ToString();
                         string uom = dt.Rows[rowIndex]["BoQUOM"].ToString();
                         double boqQty = Convert.ToDouble(dt.Rows[rowIndex]["BoqQty"]);
@@ -828,12 +850,6 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
                         cmd.ExecuteNonQuery();
                     }
 
-                    //redirect with only message
-                    string message = "RA Details Submitted Successfully !";
-                    string href = "Update/RABillUpdate.aspx";
-                    string script = $"alert('{message}');location.href = '{href}';";
-                    ScriptManager.RegisterStartupScript(this, this.GetType(), "messageScript", script, true);
-
                     con.Close();
                 }
             }
@@ -849,6 +865,113 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
             string errorMessage = "Exception at RA Details insertion";
             string script = $"alert('{errorMessage}');";
             ScriptManager.RegisterStartupScript(this, this.GetType(), "messageScript", script, true);
+        }
+    }
+
+    private void insertActionHead(int RaRefID)
+    {
+        // Account Head DataTable
+        DataTable dt = (DataTable)Session["AccountHeadDT"];
+
+        try
+        {
+            if (dt != null)
+            {
+                using (SqlConnection con = new SqlConnection(connectionString))
+                {
+                    con.Open();
+
+                    foreach (GridViewRow row in GridTax.Rows)
+                    {
+                        // getting ref IDs for all tax heads
+                        int AccountHeadRefID = getAccountHeadRefID();
+
+                        // to get the current row index
+                        int rowIndex = row.RowIndex;
+
+                        // parameters
+                        string refID = AccountHeadRefID.ToString();
+                        double RaHeaderID = Convert.ToDouble(RaRefID);
+                        string AccHeadGroup = dt.Rows[rowIndex]["AccHeadGroup"].ToString();
+                        string DeductionHead = dt.Rows[rowIndex]["DeductionHead"].ToString();
+                        string DedHeadCode = dt.Rows[rowIndex]["DedHeadCode"].ToString();
+                        double FactorInPer = Convert.ToDouble(dt.Rows[rowIndex]["FactorInPer"]);
+                        string PerOrAmnt = dt.Rows[rowIndex]["PerOrAmnt"].ToString();
+                        string AddLess = dt.Rows[rowIndex]["AddLess"].ToString();
+                        double TaxAmount = Convert.ToDouble(dt.Rows[rowIndex]["TaxAmount"]);
+
+                        // inserting into Ra Tax
+                        string sql = "INSERT INTO RaTax874 " +
+                                     "(RefID, RaHeaderID, AccHeadGroup, DeductionHead, DedHeadCode, FactorInPer, PerOrAmnt, AddLess, TaxAmount) " +
+                                     "VALUES " +
+                                     "(@RefID, @RaHeaderID, @AccHeadGroup, @DeductionHead, @DedHeadCode, @FactorInPer, @PerOrAmnt, @AddLess, @TaxAmount)";
+
+                        SqlCommand cmd = new SqlCommand(sql, con);
+                        cmd.Parameters.AddWithValue("@RefID", refID.ToString());
+                        cmd.Parameters.AddWithValue("@RaHeaderID", RaHeaderID);
+                        cmd.Parameters.AddWithValue("@AccHeadGroup", AccHeadGroup);
+                        cmd.Parameters.AddWithValue("@DeductionHead", DeductionHead);
+                        cmd.Parameters.AddWithValue("@DedHeadCode", DedHeadCode);
+                        cmd.Parameters.AddWithValue("@FactorInPer", FactorInPer);
+                        cmd.Parameters.AddWithValue("@PerOrAmnt", PerOrAmnt);
+                        cmd.Parameters.AddWithValue("@AddLess", AddLess);
+                        cmd.Parameters.AddWithValue("@TaxAmount", TaxAmount);
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    con.Close();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+
+    private void insertUploadedDocuments(int RaRefID)
+    {
+        DataTable dt = (DataTable)Session["DocuUploadDT"];
+
+        if (dt != null)
+        {
+            foreach (GridViewRow row in GridDocument.Rows)
+            {
+                // getting ref IDs for all tax heads
+                int DocUploadRefID = getDocUploadedRefID();
+
+                // to get the current row index
+                int rowIndex = row.RowIndex;
+
+                // dropdown values
+                string docType = dt.Rows[rowIndex]["docType"].ToString();
+                string stageLevel = dt.Rows[rowIndex]["stageLevel"].ToString();
+                string onlyFileName = dt.Rows[rowIndex]["onlyFileName"].ToString();
+
+                // Find the HyperLink control in the current row
+                HyperLink hypDocPath = (HyperLink)row.FindControl("hypDocPath");
+                // Get the NavigateUrl property from the HyperLink control
+                string navigateUrl = hypDocPath.NavigateUrl;
+
+                string message = "Hyper Link: " + navigateUrl;
+                string script = $"alert('{message}');";
+                ScriptManager.RegisterStartupScript(this, this.GetType(), "messageScript", script, true);
+
+                using (SqlConnection con = new SqlConnection(connectionString))
+                {
+                    con.Open();
+                    string sql = "insert into DocUpload874 (RefID, RaHeaderID, DocType, StageLevel, DocName, DocPath) values (@RefID, @RaHeaderID, @DocType, @StageLevel, @DocName, @DocPath)";
+
+                    SqlCommand cmd = new SqlCommand(sql, con);
+                    cmd.Parameters.AddWithValue("@RefID", DocUploadRefID.ToString());
+                    cmd.Parameters.AddWithValue("@RaHeaderID", RaRefID.ToString());
+                    cmd.Parameters.AddWithValue("@DocType", docType.ToString());
+                    cmd.Parameters.AddWithValue("@StageLevel", stageLevel.ToString());
+                    cmd.Parameters.AddWithValue("@DocName", onlyFileName.ToString());
+                    cmd.Parameters.AddWithValue("@DocPath", navigateUrl.ToString());
+                    cmd.ExecuteNonQuery();
+                }
+            }
         }
     }
 
@@ -878,6 +1001,38 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
         {
             con.Open();
             string sql = "SELECT ISNULL(MAX(CAST(RefID AS INT)), 1000000) + 1 AS NextRefID FROM RaDetails874";
+            SqlCommand cmd = new SqlCommand(sql, con);
+
+            object result = cmd.ExecuteScalar();
+            if (result != null && result != DBNull.Value) { nextRefID = result.ToString(); }
+            return Convert.ToInt32(nextRefID);
+        }
+    }
+
+    private int getAccountHeadRefID()
+    {
+        string nextRefID = "1000001";
+
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            con.Open();
+            string sql = "SELECT ISNULL(MAX(CAST(RefID AS INT)), 1000000) + 1 AS NextRefID FROM RaTax874";
+            SqlCommand cmd = new SqlCommand(sql, con);
+
+            object result = cmd.ExecuteScalar();
+            if (result != null && result != DBNull.Value) { nextRefID = result.ToString(); }
+            return Convert.ToInt32(nextRefID);
+        }
+    }
+
+    private int getDocUploadedRefID()
+    {
+        string nextRefID = "1000001";
+
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            con.Open();
+            string sql = "SELECT ISNULL(MAX(CAST(RefID AS INT)), 1000000) + 1 AS NextRefID FROM DocUpload874";
             SqlCommand cmd = new SqlCommand(sql, con);
 
             object result = cmd.ExecuteScalar();

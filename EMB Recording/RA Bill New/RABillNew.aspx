@@ -235,19 +235,19 @@
             </div>
         </div>
 
-        <div id="divTax" runat="server" visible="false">
+        <div id="divTax" runat="server" visible="false" class="col-md-11 mx-auto">
 
             <!-- Taxes / Account Head -->
 
-            <hr class="col-md-11 mx-auto border border-1 border-dark-subtle mt-4" />
-            <div class="mx-2 mx-auto col-md-11 text-start">
+            <hr class="border border-1 border-dark-subtle mt-4" />
+            <div class="text-start">
                 <div class="fw-normal fs-5 fw-medium text-body-secondary">
                     <asp:Literal ID="Literal18" Text="Taxes / Charges" runat="server"></asp:Literal>
                 </div>
             </div>
-            <hr class="col-md-11 mx-auto border border-1 border-dark-subtle" />
+            <hr class="border border-1 border-dark-subtle" />
 
-            <div class="mt-1 mx-auto col-md-11 row">
+            <div class="mt-1">
 
                 <div class="col-md-12">
                     <asp:GridView ShowHeaderWhenEmpty="true" ID="GridTax" runat="server" AutoGenerateColumns="false" OnRowDataBound="GridTax_RowDataBound" 
@@ -292,7 +292,7 @@
             </div>
 
             <!-- Total Taxes & Net Amount -->
-            <div class="mx-2 mb-2 mx-auto col-md-11">
+            <div class="mb-2">
                 <div class="row mb-3">
                     <div class="col-md-9 align-self-end">
                         <!--  -->
@@ -333,18 +333,18 @@
 
 
             <!-- Upload Document -->
-            <hr class="col-md-11 mx-auto border border-1 border-dark-subtle mt-4" />
+            <hr class="border border-1 border-dark-subtle mt-4" />
 
-            <div class="mx-2 mx-auto col-md-11 text-start">
+            <div class="text-start">
                 <div class="fw-normal fs-5 fw-medium text-body-secondary">
                     <asp:Literal ID="Literal17" Text="Document Upload" runat="server"></asp:Literal>
                 </div>
             </div>
 
-            <hr class="col-md-11 mx-auto border border-1 border-dark-subtle" />
+            <hr class="border border-1 border-dark-subtle" />
 
 
-            <div class="row mb-3 mx-2 mb-2 mx-auto col-md-11">
+            <div class="row mb-3 mb-2">
                 <div class="col-md-4 align-self-end">
                     <div class="form-group m-0">
                         <div class="mb-1 text-body-tertiary fw-semibold fs-6">
@@ -395,8 +395,8 @@
             </div>
 
             <!-- Document Grid -->
-            <div class="mx-auto col-md-11 mt-5">
-                <asp:GridView ShowHeaderWhenEmpty="true" ID="GridDocument" runat="server" AutoGenerateColumns="false" OnRowDataBound="GridTax_RowDataBound"
+            <div class="mt-5">
+                <asp:GridView ShowHeaderWhenEmpty="true" ID="GridDocument" runat="server" AutoGenerateColumns="false"
                     CssClass="table table-bordered border border-light-subtle text-start mt-3">
                     <HeaderStyle CssClass="align-middle table-secondary fw-light fs-6" />
                     <Columns>
@@ -413,11 +413,13 @@
                 </asp:GridView>
             </div>
 
+            <hr class="my-4 border border-2 border-dark-subtle" />
+
             <!-- Submit Button -->
-            <div class="col-md-11 mx-auto">
+            <div class="">
                 <div class="mt-5 mb-2">
                     <div class="text-end">
-                        <asp:Button ID="btnSubmit" runat="server" Text="Submit" OnClick="btnSubmit_Click" Enabled="false" CssClass="btn btn-primary text-white mb-5" />
+                        <asp:Button ID="btnSubmit" runat="server" Text="Submit" OnClick="btnSubmit_Click" CssClass="btn btn-primary text-white mb-5" />
                     </div>
                 </div>
             </div>
