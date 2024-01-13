@@ -20,7 +20,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
     <script src="RABillUpdate.js"></script>
-    <link rel="stylesheet" type="text/css" href="RABillUpdate.css"/>
+    <link rel="stylesheet" type="text/css" href="RABillUpdate.css" />
 
 </head>
 <body>
@@ -340,7 +340,13 @@
                             CssClass="table text-center shadow">
                             <HeaderStyle CssClass="align-middle table-secondary fw-light" />
                             <Columns>
-                                <asp:BoundField DataField="DeductionHead" HeaderText="Deduction Head" ReadOnly="true" ItemStyle-Font-Size="15px" ItemStyle-CssClass="col-md-4 align-middle text-start fw-light" />
+                                <%--<asp:BoundField DataField="DeductionHead" HeaderText="Deduction Head" ReadOnly="true" ItemStyle-Font-Size="15px" ItemStyle-CssClass="col-md-4 align-middle text-start fw-light" />--%>
+
+                                <asp:TemplateField HeaderText="Deduction Head" ItemStyle-Font-Size="15px" ItemStyle-CssClass="col-md-4 align-middle text-start fw-light">
+                                    <ItemTemplate>
+                                        <asp:TextBox ID="DeductionHead" runat="server" Enabled="false" CssClass="col-md-9 fw-light bg-white border-0 py-1 px-2" Text='<%# Bind("DeductionHead") %>'></asp:TextBox>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
 
                                 <asp:TemplateField HeaderText="Factor in %" ItemStyle-Font-Size="15px" ItemStyle-CssClass="col-md-2 align-middle">
                                     <ItemTemplate>
@@ -470,7 +476,7 @@
                             </div>
                             <div class="justify-content-center">
                                 <div class="input-group has-validation">
-                                    <asp:FileUpload ID="fileDoc" runat="server" CssClass="form-control" aria-describedby="inputGroupPrepend"  />
+                                    <asp:FileUpload ID="fileDoc" runat="server" CssClass="form-control" aria-describedby="inputGroupPrepend" />
                                     <asp:Button ID="btnDocUpload" runat="server" OnClick="btnDocUpload_Click" Text="Upload" AutoPost="true" CssClass="btn btn-outline-secondary" />
                                     <div class="invalid-feedback">
                                         Please choose a file
@@ -512,6 +518,8 @@
                         </div>
                     </div>
                 </div>
+
+
 
             </div>
         </div>

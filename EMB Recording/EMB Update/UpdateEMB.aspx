@@ -91,8 +91,9 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row mb-2">
+                        <div class="row mb-2 mt-3">
                             <div class="form-row col-md-6 align-self-end">
+                                 <asp:Button ID="btnTruncate" runat="server" Text="Truncate EMB" OnClick="btnTruncate_Click" CssClass="btn btn-danger shadow" />
                             </div>
                             <div class="form-row col-md-6 align-self-end text-end">
                                 <asp:Button ID="btnSearch" runat="server" Text="Search" OnClick="btnSearch_Click" CssClass="btn btn-primary col-md-2 shadow" />

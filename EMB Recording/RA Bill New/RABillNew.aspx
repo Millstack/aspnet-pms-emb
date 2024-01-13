@@ -146,7 +146,18 @@
             </div>
         </div>
 
+
         <div id="gridEmbDiv" runat="server" visible="false" class="mt-5 mx-auto col-md-11">
+
+            <!-- BoQ Grid -->
+            <hr class="border border-1 border-dark-subtle mt-4" />
+            <div class="text-start">
+                <div class="fw-normal fs-5 fw-medium text-body-secondary">
+                    <asp:Literal ID="Literal19" Text="EMB Abstract Items List" runat="server"></asp:Literal>
+                </div>
+            </div>
+            <hr class="border border-1 border-dark-subtle mb-4" />
+
             <div class="">
                 <asp:GridView ShowHeaderWhenEmpty="true" ID="gridDynamicBOQ" runat="server" AutoGenerateColumns="false" OnRowDataBound="GridDyanmic_RowDataBound"
                     CssClass="table table-bordered  border border-1 border-dark-subtle table-hover text-center">
@@ -250,11 +261,15 @@
             <div class="mt-1">
 
                 <div class="col-md-12">
-                    <asp:GridView ShowHeaderWhenEmpty="true" ID="GridTax" runat="server" AutoGenerateColumns="false" OnRowDataBound="GridTax_RowDataBound" 
+                    <asp:GridView ShowHeaderWhenEmpty="true" ID="GridTax" runat="server" AutoGenerateColumns="false" OnRowDataBound="GridTax_RowDataBound"
                         CssClass="table text-center">
                         <HeaderStyle CssClass="align-middle table-secondary fw-light" />
                         <Columns>
-                            <asp:BoundField DataField="DeductionHead" HeaderText="Deduction Head" ReadOnly="true" ItemStyle-Font-Size="15px" ItemStyle-CssClass="col-md-4 align-middle text-start fw-light" />
+                            <asp:TemplateField HeaderText="Deduction Head" ItemStyle-Font-Size="15px" ItemStyle-CssClass="col-md-4 align-middle text-start fw-light">
+                                <ItemTemplate>
+                                    <asp:TextBox ID="DeductionHead" runat="server" Enabled="false" CssClass="col-md-9 fw-light bg-white border-0 py-1 px-2" Text='<%# Bind("DeductionHead") %>'></asp:TextBox>
+                                </ItemTemplate>
+                            </asp:TemplateField>
 
                             <asp:TemplateField HeaderText="Factor in %" ItemStyle-Font-Size="15px" ItemStyle-CssClass="col-md-2 align-middle">
                                 <ItemTemplate>

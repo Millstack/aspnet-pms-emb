@@ -5,7 +5,6 @@ $(document).ready(function () {
 
     // project master
     $('#ddProjectMaster').select2({
-        theme: 'classic',
         placeholder: 'Select here.....',
         allowClear: false,
     });
@@ -15,7 +14,6 @@ $(document).ready(function () {
 
     // ao details
     $('#ddAODetails').select2({
-        theme: 'classic',
         placeholder: 'Select here.....',
         allowClear: false,
     });
@@ -25,7 +23,6 @@ $(document).ready(function () {
 
     // work order
     $('#ddWorkOrder').select2({
-        theme: 'classic',
         placeholder: 'Select here.....',
         allowClear: false,
     });
@@ -35,7 +32,6 @@ $(document).ready(function () {
 
     // vendor name
     $('#ddVender').select2({
-        theme: 'classic',
         placeholder: 'Select here.....',
         allowClear: false,
     });
@@ -45,7 +41,6 @@ $(document).ready(function () {
 
     // milestone
     $('#ddMileStone').select2({
-        theme: 'classic',
         placeholder: 'Select here.....',
         allowClear: false,
     });
@@ -55,7 +50,6 @@ $(document).ready(function () {
 
     // abstract no
     $('#ddAbstractNo').select2({
-        theme: 'classic',
         placeholder: 'Select here.....',
         allowClear: false,
     });
@@ -65,14 +59,12 @@ $(document).ready(function () {
 
     // doc type
     $('#ddDocType').select2({
-        theme: 'classic',
         placeholder: 'Select here.....',
         allowClear: false,
     });
 
     // stage
     $('#ddStage').select2({
-        theme: 'classic',
         placeholder: 'Select here.....',
         allowClear: false,
     });
@@ -91,14 +83,12 @@ $(document).ready(function () {
 
         // project
         $('#ddProjectMaster').select2({
-            theme: "classic",
             placeholder: 'Select here.....',
             allowClear: false,
         });
 
         // work order
         $('#ddWorkOrder').select2({
-            theme: "classic",
             placeholder: 'Select here.....',
             allowClear: false,
         });
@@ -108,35 +98,30 @@ $(document).ready(function () {
 
         // vendor name
         $('#ddVender').select2({
-            theme: "classic",
             placeholder: 'Select here.....',
             allowClear: false,
         });
 
         // milestone
         $('#ddMileStone').select2({
-            theme: 'classic',
             placeholder: 'Select here.....',
             allowClear: false,
         });
 
         // abstract no
         $('#ddAbstractNo').select2({
-            theme: 'classic',
             placeholder: 'Select here.....',
             allowClear: false,
         });
 
         // doc type
         $('#ddDocType').select2({
-            theme: 'classic',
             placeholder: 'Select here.....',
             allowClear: false,
         });
 
         // stage
         $('#ddStage').select2({
-            theme: 'classic',
             placeholder: 'Select here.....',
             allowClear: false,
         });

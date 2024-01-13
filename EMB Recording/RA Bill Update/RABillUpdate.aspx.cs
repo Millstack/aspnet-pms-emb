@@ -483,18 +483,103 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
             DropDownList ddlPerOrAmnt = (DropDownList)e.Row.FindControl("PerOrAmnt");
             if (ddlPerOrAmnt != null)
             {
-
                 // Add options dynamically
                 ddlPerOrAmnt.Items.Add(new ListItem("%", "Percentage"));
                 ddlPerOrAmnt.Items.Add(new ListItem("₹", "Amount"));
+
+                // Set selected value based on the "PerOrAmnt" column in the DataTable
+                string perOrAmntValue = accountHeadDT.Rows[e.Row.RowIndex]["PerOrAmnt"].ToString();
+
+                // Set the selected value in the DropDownList
+                ListItem selectedListItem = ddlPerOrAmnt.Items.FindByValue(perOrAmntValue);
+                if (selectedListItem != null)
+                {
+                    selectedListItem.Selected = true;
+                }
             }
         }
     }
 
     protected void btnReCalTax_Click(object sender, EventArgs e)
     {
-        // inserting EMB header info
-        //InsertEmbHeader();
+        // Account Head DataTable
+        DataTable dt = (DataTable)Session["AccountHeadDT"];
+
+        // basic amount
+        double basicAmount = Convert.ToDouble(txtBasicAmt.Text);
+        double totalDeduction = 0.00;
+        double totalAddition = 0.00;
+        double netAmount = 0.00;
+
+        // Create a new DataTable
+        DataTable newDataTable = new DataTable();
+        newDataTable.Columns.Add("DeductionHead", typeof(string));
+        newDataTable.Columns.Add("FactorInPer", typeof(double));
+        newDataTable.Columns.Add("PerOrAmnt", typeof(string));
+        newDataTable.Columns.Add("AddLess", typeof(string));
+        newDataTable.Columns.Add("TaxAmount", typeof(double));
+
+        if (dt != null)
+        {
+            foreach (GridViewRow row in GridTax.Rows)
+            {
+                // to get the current row index
+                int rowIndex = row.RowIndex;
+
+                // Check if the DataTable has a row at the specified position
+                if (newDataTable.Rows.Count <= rowIndex)
+                {
+                    // If not, add a new row to the DataTable
+                    DataRow newRow = newDataTable.NewRow();
+                    newDataTable.Rows.Add(newRow);
+                }
+
+                // parameters
+                TextBox DeductionHeadStr = row.FindControl("DeductionHead") as TextBox;
+                TextBox FactorInPercentage = row.FindControl("FactorInPer") as TextBox;
+                DropDownList perOrAmntDropDown = row.FindControl("PerOrAmnt") as DropDownList;
+                DropDownList AddLessDropown = row.FindControl("AddLess") as DropDownList;
+                TextBox TaxAccountHeadAmount = row.FindControl("TaxAmount") as TextBox;
+
+                string DeductionHead = (DeductionHeadStr.Text).ToString();
+                double factorInPer = Convert.ToDouble(FactorInPercentage.Text);
+                string perOrAmnt = perOrAmntDropDown.SelectedValue;
+                string addLess = AddLessDropown.SelectedValue;
+                double taxAmount = Convert.ToDouble(TaxAccountHeadAmount.Text);
+
+                // tax amount
+                taxAmount = (basicAmount * factorInPer) / 100;
+
+                if (addLess == "Add")
+                {
+                    totalAddition = totalAddition + taxAmount;
+                }
+                else
+                {
+                    totalDeduction = totalDeduction + taxAmount;
+                }
+
+                newDataTable.Rows[rowIndex]["DeductionHead"] = DeductionHead;
+                newDataTable.Rows[rowIndex]["FactorInPer"] = factorInPer;
+                newDataTable.Rows[rowIndex]["PerOrAmnt"] = perOrAmnt;
+                newDataTable.Rows[rowIndex]["AddLess"] = addLess;
+                newDataTable.Rows[rowIndex]["TaxAmount"] = taxAmount;
+            }
+
+            // filling total deduction
+            txtTotalDeduct.Text = Math.Abs(totalDeduction).ToString("N2");
+
+            // filling total addition
+            txtTotalAdd.Text = totalAddition.ToString("N2");
+
+            // Net Amount after tax deductions or addition
+            netAmount = (basicAmount + totalAddition) - Math.Abs(totalDeduction);
+            txtNetAmnt.Text = netAmount.ToString("N2");
+
+            Session["UpdateAccountHeadDT"] = newDataTable;
+            GridTax.DataSource = newDataTable;
+            GridTax.DataBind();
+        }
     }
 
     //========================================================================
@@ -787,6 +872,8 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
 
             // Tax Head Grid
             DataTable accountHeadDT = getAccountHead(rowId);
+            Session["AccountHeadDT"] = accountHeadDT;
+
             GridTax.DataSource = accountHeadDT;
             GridTax.DataBind();
 
@@ -947,18 +1034,66 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
     {
         int RaHeaderID = Convert.ToInt32(Session["RowID"]);
 
-        // Update RA Header
-        updateRaheader(RaHeaderID);
+        // Update Tax Account Head Grid
+        updateRaTaxHeadGrid(RaHeaderID);
 
-        // Update RA Details
+        // Update Tax Details
         updateRaDetails(RaHeaderID);
+
+        // update Document Upload Details
+        updateRaDocumentDetails(RaHeaderID);
     }
 
-    private void updateRaheader(int RaHeaderID)
+    private void updateRaTaxHeadGrid(int RaHeaderID)
     {
+        // Account Head DataTable
+        DataTable dt = (DataTable)Session["AccountHeadDT"];
+
         try
         {
+            if (dt != null)
+            {
+                using (SqlConnection con = new SqlConnection(connectionString))
+                {
+                    con.Open();
 
+                    foreach (GridViewRow row in GridTax.Rows)
+                    {
+                        // to get the current row index
+                        int rowIndex = row.RowIndex;
+
+                        // parameters of textbox
+                        TextBox DeductionHeadStr = row.FindControl("DeductionHead") as TextBox;
+                        string DeductionHead = (DeductionHeadStr.Text).ToString();
+                       
+                        TextBox FactorInPercentage = row.FindControl("FactorInPer") as TextBox;
+                        double FactorInPer = Convert.ToDouble(FactorInPercentage.Text);
+
+                        TextBox TaxAccountHeadAmount = row.FindControl("TaxAmount") as TextBox;
+                        double TaxAmount = Convert.ToDouble(TaxAccountHeadAmount.Text);
+
+                        // parameters of dropdown list
+                        DropDownList perOrAmntDropDown = row.FindControl("PerOrAmnt") as DropDownList;
+                        string PerOrAmnt = perOrAmntDropDown.SelectedValue;
+
+                        DropDownList AddLessDropown = row.FindControl("AddLess") as DropDownList;
+                        string AddLess = AddLessDropown.SelectedValue;
+
+                        // inserting into Ra Tax
+                        string sql = "UPDATE RaTax874 SET FactorInPer=@FactorInPer, PerOrAmnt=@PerOrAmnt, AddLess=@AddLess, TaxAmount=@TaxAmount WHERE RefID=@RefID";
+
+                        SqlCommand cmd = new SqlCommand(sql, con);
+                        cmd.Parameters.AddWithValue("@FactorInPer", FactorInPer);
+                        cmd.Parameters.AddWithValue("@PerOrAmnt", PerOrAmnt);
+                        cmd.Parameters.AddWithValue("@AddLess", AddLess);
+                        cmd.Parameters.AddWithValue("@TaxAmount", TaxAmount);
+                        cmd.Parameters.AddWithValue("@RefID", dt.Rows[rowIndex]["RefID"].ToString());
+                        cmd.ExecuteNonQuery();
+                    }
+
+                    con.Close();
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -970,9 +1105,24 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
     {
         try
         {
+            // RA Header update total deduction, addition and Net Amount
 
+            double totalDeduction = Convert.ToDouble(txtTotalDeduct.Text);
+            double totalAddition = Convert.ToDouble(txtTotalDeduct.Text);
         }
         catch(Exception ex)
+        {
+
+        }
+    }
+
+    private void updateRaDocumentDetails(int RaHeaderID)
+    {
+        try
+        {
+
+        }
+        catch (Exception ex)
         {
 
         }

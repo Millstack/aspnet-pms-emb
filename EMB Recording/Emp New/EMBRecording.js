@@ -5,14 +5,12 @@ $(document).ready(function () {
 
     // category
     $('#ddCat').select2({
-        theme: "classic",
         placeholder: 'Select here.....',
         allowClear: false,
     });
     
     // sub category
     $('#ddSubCat').select2({
-        theme: 'classic',
         placeholder: 'Select here.....',
         allowClear: false,
     });
@@ -22,7 +20,6 @@ $(document).ready(function () {
 
     // project master
     $('#ddProjectMaster').select2({
-        theme: 'classic',
         placeholder: 'Select here.....',
         allowClear: false,
     });
@@ -32,7 +29,6 @@ $(document).ready(function () {
 
     // ao details
     $('#ddAODetails').select2({
-        theme: 'classic',
         placeholder: 'Select here.....',
         allowClear: false,
     });
@@ -42,7 +38,6 @@ $(document).ready(function () {
 
     // work order
     $('#ddWorkOrder').select2({
-        theme: 'classic',
         placeholder: 'Select here.....',
         allowClear: false,
     });
@@ -52,7 +47,6 @@ $(document).ready(function () {
 
     // vendor name
     $('#ddVender').select2({
-        theme: 'classic',
         placeholder: 'Select here.....',
         allowClear: false,
     });
@@ -77,28 +71,24 @@ $(document).ready(function () {
 
         // category
         $('#ddCat').select2({
-            theme: "classic",
             placeholder: 'Select here.....',
             allowClear: false,
         });
 
         // sub category
         $('#ddSubCat').select2({
-            theme: 'classic',
             placeholder: 'Select here.....',
             allowClear: false,
         });
 
         // project
         $('#ddProjectMaster').select2({
-            theme: "classic",
             placeholder: 'Select here.....',
             allowClear: false,
         });
 
         // work order
         $('#ddWorkOrder').select2({
-            theme: "classic",
             placeholder: 'Select here.....',
             allowClear: false,
         });
@@ -108,7 +98,6 @@ $(document).ready(function () {
 
         // vendor name
         $('#ddVender').select2({
-            theme: "classic",
             placeholder: 'Select here.....',
             allowClear: false,
         });

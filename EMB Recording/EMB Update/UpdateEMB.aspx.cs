@@ -25,8 +25,6 @@ public partial class Emp_Calculation_UpdateEMB : System.Web.UI.Page
 
             //BindDynamicGridView();
 
-            //TruncateTable();
-
             //redirect with only message
             //string message = "vendor : " + vendorRefID;
             //string script = $"alert('{message}');";
@@ -80,22 +78,6 @@ public partial class Emp_Calculation_UpdateEMB : System.Web.UI.Page
             string message = "No records";
             string script = $"alert('{message}');";
             ScriptManager.RegisterStartupScript(this, this.GetType(), "messageScript", script, true);
-        }
-    }
-
-    private void TruncateTable()
-    {
-        using (SqlConnection con = new SqlConnection(connectionString))
-        {
-            con.Open();
-            string sql = "TRUNCATE TABLE EmbMaster874";
-            SqlCommand cmd = new SqlCommand(sql, con);
-            cmd.ExecuteNonQuery();
-
-            string sql1 = "TRUNCATE TABLE EmbRecords874";
-            SqlCommand cmd1 = new SqlCommand(sql1, con);
-            cmd1.ExecuteNonQuery();
-            con.Close();
         }
     }
 
@@ -503,6 +485,48 @@ public partial class Emp_Calculation_UpdateEMB : System.Web.UI.Page
     }
 
     //====================={ Button Events }================================
+
+    protected void btnTruncate_Click(object sender, EventArgs e)
+    {
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            con.Open();
+
+            string sql = "truncate table EmbMaster874";
+            SqlCommand cmd = new SqlCommand(sql, con);
+            cmd.ExecuteNonQuery();
+
+            string sql1 = "truncate table EmbRecords874";
+            SqlCommand cmd1 = new SqlCommand(sql1, con);
+            cmd1.ExecuteNonQuery();
+
+
+            //==================================================================================
+            string sq2 = "UPDATE UploadBOQ874 SET BoqPenQty = @BoqPenQty WHERE RefID = @RefID";
+            SqlCommand cm2 = new SqlCommand(sq2, con);
+            cm2.Parameters.AddWithValue("@BoqPenQty", 100.00);
+            cm2.Parameters.AddWithValue("@RefID", Convert.ToInt32("1000009"));
+            cm2.ExecuteNonQuery();
+
+            string sql3 = "UPDATE UploadBOQ874 SET BoqPenQty = @BoqPenQty WHERE RefID = @RefID";
+            SqlCommand cmd3 = new SqlCommand(sql3, con);
+            cmd3.Parameters.AddWithValue("@BoqPenQty", 12.00);
+            cmd3.Parameters.AddWithValue("@RefID", Convert.ToInt32("1000010"));
+            cmd3.ExecuteNonQuery();
+
+            string sql4 = "UPDATE UploadBOQ874 SET BoqPenQty = @BoqPenQty WHERE RefID = @RefID";
+            SqlCommand cmd4 = new SqlCommand(sql4, con);
+            cmd4.Parameters.AddWithValue("@BoqPenQty", 52.00);
+            cmd4.Parameters.AddWithValue("@RefID", Convert.ToInt32("1000013"));
+            cmd4.ExecuteNonQuery();
+
+            con.Close();
+        }
+
+        string message = "All EMB related tables truncated !";
+        string script = $"alert('{message}');";
+        ScriptManager.RegisterStartupScript(this, this.GetType(), "messageScript", script, true);
+    }
 
     protected void btnNewEmb_Click(object sender, EventArgs e)
     {
