@@ -29,102 +29,101 @@ public partial class Emp_Calculation_EmbRecording : System.Web.UI.Page
         if (!IsPostBack)
         {
             Bind_Role_Category();
-
-
-
-
-            //BindDynamicGridView();
-
-            //TruncateTable();
-            //ResetUploadBoq();
         }
     }
 
-    protected void BindDynamicGridView()
+    //=============================={ Sweet Alert }============================================
+
+    // sweet alert - success only
+    private void getSweetAlertSuccessOnly()
     {
-        DataTable dt = new DataTable();
+        string title = "Saved!";
+        string message = "Record saved successfully!";
+        string icon = "success";
+        string confirmButtonText = "OK";
 
-        using (SqlConnection con = new SqlConnection(connectionString))
-        {
-            con.Open();
-            string sql = "select * from EmbRecords874";
-            //string sql = "select * from VendorMaster874";
-            SqlCommand cmd = new SqlCommand(sql, con);
-
-            SqlDataAdapter ad = new SqlDataAdapter(cmd);
-            ad.Fill(dt);
-            con.Close();
-        }
-
-        if (dt.Rows.Count > 0)
-        {
-            // turning OFF column auto generation
-            GridTest.AutoGenerateColumns = true;
-
-            // assigning data source to GridView
-            GridTest.DataSource = dt;
-            GridTest.DataBind();
-
-            // Clear existing columns
-            GridTest.Columns.Clear();
-
-            // Dynamically creating BoundFields or Columns using from the data source
-            foreach (DataColumn col in dt.Columns)
-            {
-                BoundField boundField = new BoundField();
-                boundField.DataField = col.ColumnName;
-                boundField.HeaderText = col.ColumnName;
-                GridTest.Columns.Add(boundField);
-            }
-
-            // turning ON column auto generation
-            GridTest.AutoGenerateColumns = false;
-        }
-        else
-        {
-            //redirect with only message
-            string message = "No records";
-            string script = $"alert('{message}');";
-            ScriptManager.RegisterStartupScript(this, this.GetType(), "messageScript", script, true);
-        }
+        string sweetAlertScript =
+            $@"<script>
+                Swal.fire({{ 
+                    title: '{title}', 
+                    text: '{message}', 
+                    icon: '{icon}', 
+                    confirmButtonText: '{confirmButtonText}' 
+                }});
+            </script>";
+        ClientScript.RegisterStartupScript(this.GetType(), "sweetAlert", sweetAlertScript, false);
     }
 
-    protected void TruncateTable()
+    // sweet alert - success redirect
+    private void getSweetAlertSuccessRedirect(string redirectUrl)
     {
-        DataTable dt = new DataTable();
+        string title = "Saved!";
+        string message = "Record saved successfully!";
+        string icon = "success";
+        string confirmButtonText = "OK";
 
-        using (SqlConnection con = new SqlConnection(connectionString))
-        {
-            con.Open();
-            string sql = "TRUNCATE TABLE EmbMaster874";
-            SqlCommand cmd = new SqlCommand(sql, con);
-            cmd.ExecuteNonQuery();
-
-            string sql1 = "TRUNCATE TABLE EmbRecords874";
-            SqlCommand cmd1 = new SqlCommand(sql1, con);
-            cmd1.ExecuteNonQuery();
-            con.Close();
-        }
+        string sweetAlertScript =
+            $@"<script>
+                Swal.fire({{ 
+                    title: '{title}', 
+                    text: '{message}', 
+                    icon: '{icon}', 
+                    confirmButtonText: '{confirmButtonText}' 
+                }}).then((result) => {{
+                    if (result.isConfirmed) {{
+                        window.location.href = '{redirectUrl}';
+                    }}
+                }});
+            </script>";
+        ClientScript.RegisterStartupScript(this.GetType(), "sweetAlert", sweetAlertScript, false);
     }
 
-    protected void ResetUploadBoq()
+    // sweet alert - success redirect block
+    private void getSweetAlertSuccessRedirectMandatory(string titles, string mssg, string redirectUrl)
     {
-        using (SqlConnection con = new SqlConnection(connectionString))
-        {
-            con.Open();
-            string sql = "UPDATE UploadBOQ874 SET BoqPenQty = @BoqPenQty WHERE RefID = @RefID";
-            SqlCommand cmd = new SqlCommand(sql, con);
-            cmd.Parameters.AddWithValue("@BoqPenQty", 100.00);
-            cmd.Parameters.AddWithValue("@RefID", Convert.ToInt32("1000009"));
-            cmd.ExecuteNonQuery();
+        string title = titles;
+        string message = mssg;
+        string icon = "success";
+        string confirmButtonText = "OK";
+        string allowOutsideClick = "false"; // Prevent closing on outside click
 
-            string sql1 = "UPDATE UploadBOQ874 SET BoqPenQty = @BoqPenQty WHERE RefID = @RefID";
-            SqlCommand cmd1 = new SqlCommand(sql1, con);
-            cmd1.Parameters.AddWithValue("@BoqPenQty", 12.00);
-            cmd1.Parameters.AddWithValue("@RefID", Convert.ToInt32("1000010"));
-            cmd1.ExecuteNonQuery();
-            con.Close();
-        }
+        string sweetAlertScript =
+        $@"<script>
+            Swal.fire({{ 
+                title: '{title}', 
+                text: '{message}', 
+                icon: '{icon}', 
+                confirmButtonText: '{confirmButtonText}', 
+                allowOutsideClick: {allowOutsideClick}
+            }}).then((result) => {{
+                if (result.isConfirmed) {{
+                    window.location.href = '{redirectUrl}';
+                }}
+            }});
+        </script>";
+        ClientScript.RegisterStartupScript(this.GetType(), "sweetAlert", sweetAlertScript, false);
+    }
+
+    // sweet alert - error only block
+    private void getSweetAlertErrorMandatory(string titles, string mssg)
+    {
+        string title = titles;
+        string message = mssg;
+        string icon = "error";
+        string confirmButtonText = "OK";
+        string allowOutsideClick = "false"; // Prevent closing on outside click
+
+        string sweetAlertScript =
+        $@"<script>
+            Swal.fire({{ 
+                title: '{title}', 
+                text: '{message}', 
+                icon: '{icon}', 
+                confirmButtonText: '{confirmButtonText}', 
+                allowOutsideClick: {allowOutsideClick}
+            }});
+        </script>";
+        ClientScript.RegisterStartupScript(this.GetType(), "sweetAlert", sweetAlertScript, false);
     }
 
     //=============================={ Bind Drop Downs }============================================
@@ -626,14 +625,30 @@ public partial class Emp_Calculation_EmbRecording : System.Web.UI.Page
     {
         DataTable dt = (DataTable)Session["BoQDT"];
 
-        // to check for atleast one qty measured
+        bool isPositive = true;
+        bool someBoqQtyMeasured = false;
+
+        // pre loop to check for any negative boq qty measured & at least one boq qty measured
         foreach (GridViewRow row in gridDynamicBOQ.Rows)
         {
             TextBox qtyMeasured = row.FindControl("QtyMeasure") as TextBox;
             double boqQtyMeasured = Convert.ToDouble(qtyMeasured.Text);
 
-            // checking for only filled qty measured items to be inserted
-            if (boqQtyMeasured != 0.00 && boqQtyMeasured != 0)
+            if (boqQtyMeasured < 0.00 && boqQtyMeasured < 0)
+            {
+                isPositive = false; // negative boq entry
+            }
+
+            if (boqQtyMeasured > 0.00 && boqQtyMeasured > 0)
+            {
+                someBoqQtyMeasured = true;
+            }
+        }
+
+        // once filteration is done, checking the results
+        if (isPositive)
+        {
+            if (someBoqQtyMeasured)
             {
                 // selected values
                 selectedCategoryRefID = ddCat.SelectedValue; // Category RefID
@@ -691,6 +706,16 @@ public partial class Emp_Calculation_EmbRecording : System.Web.UI.Page
                     InsertEmbDetails(RefID);
                 }
             }
+            else
+            {
+                // sweet alert - error only block
+                getSweetAlertErrorMandatory("Oops!", "Measure atleast one BOQ quantity to insert record !");
+            }
+        }
+        else
+        {
+            // sweet alert - error only block
+            getSweetAlertErrorMandatory("Oops!", "Please add positive BOQ quantity only!");
         }
     }
 
@@ -741,8 +766,8 @@ public partial class Emp_Calculation_EmbRecording : System.Web.UI.Page
 
                     double calculatedBasicAmount = Convert.ToDouble(txtBasicAmt.Text);
 
-                    // checking for only filled qty measured items to be inserted
-                    if (boqQtyMeasured != 0.00 && boqQtyMeasured != 0)
+                    // condition to insert only BoQ qty measured - greater than zero
+                    if (boqQtyMeasured > 0.00 && boqQtyMeasured > 0)
                     {
                         //============{ updating original uploaded boq }================
 
@@ -768,19 +793,12 @@ public partial class Emp_Calculation_EmbRecording : System.Web.UI.Page
                         cmd.Parameters.AddWithValue("@BasicAmount", calculatedBasicAmount);
                         cmd.ExecuteNonQuery();
                     }
-                    else
-                    {
-
-                    }
                 }
 
-                con.Close();
+                // sweet - success & redirect
+                getSweetAlertSuccessRedirectMandatory("Saved!", "Record saved successfully!", "Update/UpdateEMB.aspx");
 
-                //redirect with only message
-                string message = "EMB Recordings Submitted Successfully !";
-                string href = "Update/UpdateEMB.aspx";
-                string script = $"alert('{message}');location.href = '{href}';";
-                ScriptManager.RegisterStartupScript(this, this.GetType(), "messageScript", script, true);
+                con.Close();
             }
         }
         catch (Exception ex)

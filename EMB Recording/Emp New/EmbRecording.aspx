@@ -26,6 +26,10 @@
     <script src="EMBRecording.js"></script>
     <link rel="stylesheet" type="text/css" href="EMBRecording.css" />
 
+    <style>
+        
+    </style>
+
 </head>
 <body>
     <form id="form1" runat="server">
@@ -50,7 +54,7 @@
                             <div class="py-1">
                                 <asp:UpdatePanel ID="UpdatePanel1" runat="server">
                                     <ContentTemplate>
-                                        <asp:DropDownList ID="ddCat" runat="server" OnSelectedIndexChanged="ddCat_SelectedIndexChanged" AutoPostBack="true" class="form-control is-invalid bg-dark shadow-sm"></asp:DropDownList>
+                                        <asp:DropDownList ID="ddCat" runat="server" OnSelectedIndexChanged="ddCat_SelectedIndexChanged" AutoPostBack="true" class="form-control is-invalid"></asp:DropDownList>
                                     </ContentTemplate>
                                 </asp:UpdatePanel>
                             </div>
@@ -193,8 +197,8 @@
         <div id="gridEmbDiv" runat="server" visible="false" class="mt-5 mx-auto col-md-11">
             <div class="">
                 <asp:GridView ShowHeaderWhenEmpty="true" ID="gridDynamicBOQ" runat="server" AutoGenerateColumns="false" OnRowDataBound="GridDyanmic_RowDataBound"
-                    CssClass="table table-bordered  border border-1 border-dark-subtle table-hover text-center">
-                    <HeaderStyle CssClass="align-middle table-primary" />
+                    CssClass="table table-bordered  border border-1 border-secondary-subtle table-hover text-center grid-custom">
+                    <HeaderStyle CssClass="align-middle"/>
                     <Columns>
                         <asp:TemplateField ControlStyle-CssClass="col-md-1" HeaderText="Sr.No">
                             <ItemTemplate>
@@ -246,23 +250,6 @@
             </div>
         </div>
 
-        <div class="mt-5 mx-auto col-md-11">
-            <div class="">
-                <asp:GridView ShowHeaderWhenEmpty="true" ID="GridTest" runat="server" AutoGenerateColumns="false" CssClass="table table-bordered border border-1 border-dark-subtle table-hover text-center">
-                    <HeaderStyle CssClass="align-middle table-primary" />
-                    <Columns>
-                        <asp:TemplateField ControlStyle-CssClass="col-xs-1" HeaderText="Sr.No">
-                            <ItemTemplate>
-                                <asp:HiddenField ID="id" runat="server" Value="id" />
-                                <span>
-                                    <%#Container.DataItemIndex + 1%>
-                                </span>
-                            </ItemTemplate>
-                        </asp:TemplateField>
-                    </Columns>
-                </asp:GridView>
-            </div>
-        </div>
     </form>
 </body>
 </html>

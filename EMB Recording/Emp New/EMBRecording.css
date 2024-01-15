@@ -1,10 +1,17 @@
 ﻿
 
-.text-bg-custom {
-    background-color: #425ad1;
+/* grid background color */
+.grid-custom th {
+    background-color: #4f64cc !important;
+    color: white !important;
+    font-size: 13px !important;
+    font-family: Verdana !important;
+    font-weight: normal !important;
 }
 
 
+
+/* custom select2 dropdown vertical padding */
 .select2-selection__rendered {
     line-height: 31px !important;
 }
@@ -16,39 +23,4 @@
 .select2-selection__arrow {
     height: 34px !important;
 }
-
-
-
-
-/*dropdown select2 load for arrows*/
-
-/*.select2-selection__arrow {
-    height: 26px;
-    position: absolute;
-    top: 50%;
-    right: 10px;
-    width: 20px;
-    transform: translateY(-50%); /* Vertically center the arrow */
-}*/
-
-/*.select2-selection__arrow b {
-    border-color: #425ad1 transparent transparent transparent;
-    border-style: solid;
-    border-width: 5px 4px 0 4px;
-    height: 0;
-    left: 50%;
-    margin-left: -4px;
-    margin-top: -2px;
-    position: absolute;
-    top: 50%;
-    width: 0;
-}*/
-
-/*.btn-bd-primary {
-    background-color: #425ad1;
-    border-color: #425ad1;
-    color: #fff;
-}*/
-
-
 
