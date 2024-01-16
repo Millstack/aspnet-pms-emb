@@ -627,12 +627,23 @@ public partial class Emp_Calculation_EmbRecording : System.Web.UI.Page
 
         bool isPositive = true;
         bool someBoqQtyMeasured = false;
+        bool withinAllowedVariation = true;
 
-        // pre loop to check for any negative boq qty measured & at least one boq qty measured
+        // pre loop to check for any negative boq qty measured & at least one boq qty measured & boq qty measured is withtin aloowed variation
         foreach (GridViewRow row in gridDynamicBOQ.Rows)
         {
             TextBox qtyMeasured = row.FindControl("QtyMeasure") as TextBox;
             double boqQtyMeasured = Convert.ToDouble(qtyMeasured.Text);
+
+            //=================================================================
+            // to get the current row index
+            int rowIndex = row.RowIndex;
+
+            double boqQty = Convert.ToDouble(dt.Rows[rowIndex]["BoqQty"]);
+
+            // boq allowed qty measured
+            double boqAllowedVariation = Convert.ToDouble(dt.Rows[rowIndex]["BOQAllowVariation"]);
+            double boqAllowedValue = boqQty + ((boqQty * boqAllowedVariation) / 100);
 
             if (boqQtyMeasured < 0.00 && boqQtyMeasured < 0)
             {
@@ -643,6 +654,11 @@ public partial class Emp_Calculation_EmbRecording : System.Web.UI.Page
             {
                 someBoqQtyMeasured = true;
             }
+
+            if (boqQtyMeasured > boqAllowedValue)
+            {
+                withinAllowedVariation = false;
+            }
         }
 
         // once filteration is done, checking the results
@@ -650,60 +666,68 @@ public partial class Emp_Calculation_EmbRecording : System.Web.UI.Page
         {
             if (someBoqQtyMeasured)
             {
-                // selected values
-                selectedCategoryRefID = ddCat.SelectedValue; // Category RefID
-                selectedSubCategoryRefID = ddSubCat.SelectedValue; // Sub Categoryred RefID
-                selectedProjectMasterRefID = ddProjectMaster.SelectedValue; // Project Master RefID
-                selectedWorkOrderRefID = ddWorkOrder.SelectedValue; // Work Order RefID
-                selectedVendorRefID = ddVender.SelectedValue; // Vendor RefID
-                selectedWorkOrderAmount = Convert.ToInt32(txtWoAmnt.Text.ToString());
-
-                // DataTables
-                DataTable categoryDt = getCategory(selectedCategoryRefID); // Ref ID
-                DataTable subCategoryDt = getSubCategory(selectedSubCategoryRefID); // Ref Id
-                DataTable projectMasterDt = getProjectMaster(selectedProjectMasterRefID); // Ref Id
-                DataTable workOrderDt = getWorkOrderDetails(selectedWorkOrderRefID); // Ref Id
-                DataTable vendorDt = getVendorDetails(selectedVendorRefID); // Ref Id
-
-                // selected Dates
-                //DateTime? abstractDate = !String.IsNullOrEmpty(dateAbstract.Text) ? DateTime.Parse(dateAbstract.Text) : (DateTime?)null;
-                DateTime abstractDate = DateTime.Parse(dateAbstract.Text);
-                DateTime measuredFromDate = DateTime.Parse(dateMeasuredFrom.Text);
-                DateTime measuredToDate = DateTime.Parse(dateMeasuredTo.Text);
-
-                // check for RefID
-                int RefID = GetRefIDFromEmbMasterTable();
-
-                using (SqlConnection con = new SqlConnection(connectionString))
+                if (withinAllowedVariation)
                 {
-                    con.Open();
-                    string sql = "INSERT INTO EmbMaster874 " +
-                                 "(EmbCat, EmbSubCat, EmbPM, EmbWO, EmbVenN, EmbWOAmnt, EmbPreRAAmnt, EmbRemarks, EmbAbstractDt, EmbMeaFromDt, EmbMeaToDt, EmbMasRefId, RefID) " +
-                                 "VALUES " +
-                                 "(@EmbCat, @EmbSubCat, @EmbPM, @EmbWO, @EmbVenN, @EmbWOAmnt, @EmbPreRAAmnt, @EmbRemarks, @EmbAbstractDt, @EmbMeaFromDt, @EmbMeaToDt, @EmbMasRefId, @RefID) " +
-                                 "SELECT SCOPE_IDENTITY();";
+                    // selected values
+                    selectedCategoryRefID = ddCat.SelectedValue; // Category RefID
+                    selectedSubCategoryRefID = ddSubCat.SelectedValue; // Sub Categoryred RefID
+                    selectedProjectMasterRefID = ddProjectMaster.SelectedValue; // Project Master RefID
+                    selectedWorkOrderRefID = ddWorkOrder.SelectedValue; // Work Order RefID
+                    selectedVendorRefID = ddVender.SelectedValue; // Vendor RefID
+                    selectedWorkOrderAmount = Convert.ToInt32(txtWoAmnt.Text.ToString());
 
-                    SqlCommand cmd = new SqlCommand(sql, con);
-                    cmd.Parameters.AddWithValue("@EmbCat", categoryDt.Rows[0]["CatyName"].ToString());
-                    cmd.Parameters.AddWithValue("@EmbSubCat", subCategoryDt.Rows[0]["SubCaty"].ToString());
-                    cmd.Parameters.AddWithValue("@EmbPM", projectMasterDt.Rows[0]["ProjectName"].ToString());
-                    cmd.Parameters.AddWithValue("@EmbWO", workOrderDt.Rows[0]["woTendrNo"].ToString());
-                    cmd.Parameters.AddWithValue("@EmbVenN", vendorDt.Rows[0]["vName"].ToString()); // **
-                    cmd.Parameters.AddWithValue("@EmbWOAmnt", Convert.ToInt32(workOrderDt.Rows[0]["woTendrValue"].ToString()));
-                    cmd.Parameters.AddWithValue("@EmbPreRAAmnt", Convert.ToInt32(0)); // **
-                    cmd.Parameters.AddWithValue("@EmbRemarks", txtRemarks.Value.ToString());
-                    cmd.Parameters.AddWithValue("@EmbAbstractDt", abstractDate.ToString("dd-MM-yyyy"));
-                    cmd.Parameters.AddWithValue("@EmbMeaFromDt", measuredFromDate.ToString("dd-MM-yyyy"));
-                    cmd.Parameters.AddWithValue("@EmbMeaToDt", measuredToDate.ToString("dd-MM-yyyy"));
-                    cmd.Parameters.AddWithValue("@EmbMasRefId", RefID.ToString());
-                    cmd.Parameters.AddWithValue("@RefID", RefID.ToString());
-                    //cmd.ExecuteNonQuery();
+                    // DataTables
+                    DataTable categoryDt = getCategory(selectedCategoryRefID); // Ref ID
+                    DataTable subCategoryDt = getSubCategory(selectedSubCategoryRefID); // Ref Id
+                    DataTable projectMasterDt = getProjectMaster(selectedProjectMasterRefID); // Ref Id
+                    DataTable workOrderDt = getWorkOrderDetails(selectedWorkOrderRefID); // Ref Id
+                    DataTable vendorDt = getVendorDetails(selectedVendorRefID); // Ref Id
 
-                    int headerId = Convert.ToInt32(cmd.ExecuteScalar()); // 
-                    con.Close();
+                    // selected Dates
+                    //DateTime? abstractDate = !String.IsNullOrEmpty(dateAbstract.Text) ? DateTime.Parse(dateAbstract.Text) : (DateTime?)null;
+                    DateTime abstractDate = DateTime.Parse(dateAbstract.Text);
+                    DateTime measuredFromDate = DateTime.Parse(dateMeasuredFrom.Text);
+                    DateTime measuredToDate = DateTime.Parse(dateMeasuredTo.Text);
 
-                    // inserting EMB details
-                    InsertEmbDetails(RefID);
+                    // check for RefID
+                    int RefID = GetRefIDFromEmbMasterTable();
+
+                    using (SqlConnection con = new SqlConnection(connectionString))
+                    {
+                        con.Open();
+                        string sql = "INSERT INTO EmbMaster874 " +
+                                     "(EmbCat, EmbSubCat, EmbPM, EmbWO, EmbVenN, EmbWOAmnt, EmbPreRAAmnt, EmbRemarks, EmbAbstractDt, EmbMeaFromDt, EmbMeaToDt, EmbMasRefId, RefID) " +
+                                     "VALUES " +
+                                     "(@EmbCat, @EmbSubCat, @EmbPM, @EmbWO, @EmbVenN, @EmbWOAmnt, @EmbPreRAAmnt, @EmbRemarks, @EmbAbstractDt, @EmbMeaFromDt, @EmbMeaToDt, @EmbMasRefId, @RefID) " +
+                                     "SELECT SCOPE_IDENTITY();";
+
+                        SqlCommand cmd = new SqlCommand(sql, con);
+                        cmd.Parameters.AddWithValue("@EmbCat", categoryDt.Rows[0]["CatyName"].ToString());
+                        cmd.Parameters.AddWithValue("@EmbSubCat", subCategoryDt.Rows[0]["SubCaty"].ToString());
+                        cmd.Parameters.AddWithValue("@EmbPM", projectMasterDt.Rows[0]["ProjectName"].ToString());
+                        cmd.Parameters.AddWithValue("@EmbWO", workOrderDt.Rows[0]["woTendrNo"].ToString());
+                        cmd.Parameters.AddWithValue("@EmbVenN", vendorDt.Rows[0]["vName"].ToString()); // **
+                        cmd.Parameters.AddWithValue("@EmbWOAmnt", Convert.ToInt32(workOrderDt.Rows[0]["woTendrValue"].ToString()));
+                        cmd.Parameters.AddWithValue("@EmbPreRAAmnt", Convert.ToInt32(0)); // **
+                        cmd.Parameters.AddWithValue("@EmbRemarks", txtRemarks.Value.ToString());
+                        cmd.Parameters.AddWithValue("@EmbAbstractDt", abstractDate.ToString("dd-MM-yyyy"));
+                        cmd.Parameters.AddWithValue("@EmbMeaFromDt", measuredFromDate.ToString("dd-MM-yyyy"));
+                        cmd.Parameters.AddWithValue("@EmbMeaToDt", measuredToDate.ToString("dd-MM-yyyy"));
+                        cmd.Parameters.AddWithValue("@EmbMasRefId", RefID.ToString());
+                        cmd.Parameters.AddWithValue("@RefID", RefID.ToString());
+                        //cmd.ExecuteNonQuery();
+
+                        int headerId = Convert.ToInt32(cmd.ExecuteScalar()); // 
+                        con.Close();
+
+                        // inserting EMB details
+                        InsertEmbDetails(RefID);
+                    }
+                }
+                else
+                {
+                    // sweet alert - error only block
+                    getSweetAlertErrorMandatory("Oops!", "Measured BOQ qty exceeded variation limit!");
                 }
             }
             else
@@ -729,6 +753,20 @@ public partial class Emp_Calculation_EmbRecording : System.Web.UI.Page
             {
                 con.Open();
 
+                bool isPositive = true;
+
+                // pre loop to check measured qty is within allowed percentage
+                foreach (GridViewRow row in gridDynamicBOQ.Rows)
+                {
+                    TextBox qtyMeasured = row.FindControl("QtyMeasure") as TextBox;
+                    double boqQtyMeasured = Convert.ToDouble(qtyMeasured.Text);
+
+                    if (boqQtyMeasured < 0.00 && boqQtyMeasured < 0)
+                    {
+                        isPositive = false; // negative boq entry
+                    }
+                }
+
                 foreach (GridViewRow row in gridDynamicBOQ.Rows)
                 {
                     // to get the current row index
@@ -744,6 +782,8 @@ public partial class Emp_Calculation_EmbRecording : System.Web.UI.Page
 
                     TextBox qtyMeasured = row.FindControl("QtyMeasure") as TextBox;
                     double boqQtyMeasured = Convert.ToDouble(qtyMeasured.Text);
+
+                    
 
                     //============{ Performing Calculations }================
 
@@ -764,6 +804,8 @@ public partial class Emp_Calculation_EmbRecording : System.Web.UI.Page
 
                     double boqQtyRate = Convert.ToDouble(dt.Rows[rowIndex]["BoqRate"]);
 
+                    double allowedBoqVariation = Convert.ToDouble(dt.Rows[rowIndex]["BOQAllowVariation"]);
+
                     double calculatedBasicAmount = Convert.ToDouble(txtBasicAmt.Text);
 
                     // condition to insert only BoQ qty measured - greater than zero
@@ -776,9 +818,9 @@ public partial class Emp_Calculation_EmbRecording : System.Web.UI.Page
                         //============{ inserting emb details }================
 
                         string sql = "INSERT INTO EmbRecords874" +
-                                     "(EmbHeaderId, BoQItemName, BoQUOM, BoqQty, BoqPenQty, BoQItemRate, BoqQtyMeas, BoQUptoPreRaQty, BoqQtyDIff, BasicAmount)" +
+                                     "(EmbHeaderId, BoQItemName, BoQUOM, BoqQty, BoqPenQty, BoQItemRate, BoqQtyMeas, BoQUptoPreRaQty, BoqQtyDIff, BasicAmount, BoQAllowVar)" +
                                      "VALUES" +
-                                     "(@EmbHeaderId, @BoQItemName, @BoQUOM, @BoqQty, @BoqPenQty, @BoQItemRate, @BoqQtyMeas, @BoQUptoPreRaQty, @BoqQtyDIff, @BasicAmount)";
+                                     "(@EmbHeaderId, @BoQItemName, @BoQUOM, @BoqQty, @BoqPenQty, @BoQItemRate, @BoqQtyMeas, @BoQUptoPreRaQty, @BoqQtyDIff, @BasicAmount, @BoQAllowVar)";
 
                         SqlCommand cmd = new SqlCommand(sql, con);
                         cmd.Parameters.AddWithValue("@EmbHeaderId", Convert.ToInt32(headerId));
@@ -791,6 +833,7 @@ public partial class Emp_Calculation_EmbRecording : System.Web.UI.Page
                         cmd.Parameters.AddWithValue("@BoQUptoPreRaQty", boquptoPreRaQty);
                         cmd.Parameters.AddWithValue("@BoqQtyDIff", boqQtyDiff);
                         cmd.Parameters.AddWithValue("@BasicAmount", calculatedBasicAmount);
+                        cmd.Parameters.AddWithValue("@BoQAllowVar", allowedBoqVariation);
                         cmd.ExecuteNonQuery();
                     }
                 }

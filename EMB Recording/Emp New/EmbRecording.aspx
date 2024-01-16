@@ -229,7 +229,7 @@
 
                 <div class="mt-5 mb-2">
                     <div class="text-end">
-                        <asp:Button ID="btnBasicAmount" runat="server" Text="Calculate (Basic Amount)" OnClick="btnBasicAmount_Click" CssClass="btn btn-info mb-3" />
+                        <asp:Button ID="btnBasicAmount" runat="server" Text="Calculate (Basic Amount)" OnClick="btnBasicAmount_Click" CssClass="btn btn-custom mb-3" />
                     </div>
                 </div>
                 <div class="row mb-3">
@@ -243,7 +243,7 @@
                 </div>
                 <div class="mt-5 mb-3">
                     <div class="text-end">
-                        <asp:Button ID="btnSubmitBasicAmount" Enabled="false" runat="server" Text="Submit Basic Amount" OnClick="btnSubmitBasicAmount_Click" CssClass="btn btn-primary mb-3" />
+                        <asp:Button ID="btnSubmitBasicAmount" Enabled="false" runat="server" Text="Submit Basic Amount" OnClick="btnSubmitBasicAmount_Click" CssClass="btn btn-custom mb-3" />
                     </div>
                 </div>
 

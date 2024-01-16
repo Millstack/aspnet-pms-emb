@@ -19,6 +19,11 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.3/dist/sweetalert2.min.css" rel="stylesheet" />
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.3/dist/sweetalert2.all.min.js"></script>
+
     <script src="UpdateEMB.js"></script>
     <link rel="stylesheet" type="text/css" href="UpdateEMB.css" />
 
@@ -37,8 +42,14 @@
                 </div>
                 <div class="col-md-6 text-end">
                     <div class="fw-semibold fs-5">
-                        <asp:Button ID="btnNewEmb" runat="server" Text="New EMB +" OnClick="btnNewEmb_Click" CssClass="btn btn-primary shadow" />
+                        <asp:Button ID="btnNewEmb" runat="server" Text="New EMB +" OnClick="btnNewEmb_Click" CssClass="btn btn-custom shadow" />
                     </div>
+                </div>
+            </div>
+
+            <div class="card mt-1 shadow-sm mx-auto col-md-11">
+                <div class="card-body">
+
                 </div>
             </div>
 
@@ -93,10 +104,10 @@
                         </div>
                         <div class="row mb-2 mt-3">
                             <div class="form-row col-md-6 align-self-end">
-                                 <asp:Button ID="btnTruncate" runat="server" Text="Truncate EMB" OnClick="btnTruncate_Click" CssClass="btn btn-danger shadow" />
+                                <asp:Button ID="btnTruncate" runat="server" Text="Truncate EMB" OnClick="btnTruncate_Click" CssClass="btn btn-danger shadow" />
                             </div>
                             <div class="form-row col-md-6 align-self-end text-end">
-                                <asp:Button ID="btnSearch" runat="server" Text="Search" OnClick="btnSearch_Click" CssClass="btn btn-primary col-md-2 shadow" />
+                                <asp:Button ID="btnSearch" runat="server" Text="Search" OnClick="btnSearch_Click" CssClass="btn btn-custom col-md-2 shadow" />
                             </div>
                         </div>
                     </div>
@@ -108,8 +119,8 @@
             <div id="gridEmbDiv" visible="false" runat="server" class="mt-5">
                 <div class="">
                     <asp:GridView ShowHeaderWhenEmpty="true" ID="gridEMBHeader" runat="server" AutoGenerateColumns="false" OnRowCommand="GrdUser_RowCommand" AllowPaging="true" PageSize="10"
-                        CssClass="table table-bordered border border-1 border-dark-subtle table-hover text-center" OnPageIndexChanging="GridEmbHeader_PageIndexChanging" PagerStyle-CssClass="gridview-pager">
-                        <HeaderStyle CssClass="align-middle table-primary" />
+                        CssClass="table table-bordered border border-1 border-secondary-subtle table-hover text-center grid-custom" OnPageIndexChanging="GridEmbHeader_PageIndexChanging" PagerStyle-CssClass="gridview-pager">
+                        <HeaderStyle CssClass="align-middle" />
                         <Columns>
                             <asp:TemplateField ControlStyle-CssClass="col-md-1" HeaderText="Sr.No">
                                 <ItemTemplate>
@@ -262,8 +273,8 @@
             <div id="embDetailsUpdate" runat="server" visible="false" class="mt-5 mx-auto col-md-11">
                 <div class="">
                     <asp:GridView ShowHeaderWhenEmpty="true" ID="gridDynamicBOQ" runat="server" AutoGenerateColumns="false" OnRowDataBound="GridDyanmic_RowDataBound"
-                        CssClass="table table-bordered border border-1 border-dark-subtle table-hover text-center">
-                        <HeaderStyle CssClass="align-middle table-primary" />
+                        CssClass="table table-bordered border border-1 border-dark-subtle table-hover text-center grid-custom">
+                        <HeaderStyle CssClass="align-middle" />
                         <Columns>
                             <asp:TemplateField ControlStyle-CssClass="col-md-1" HeaderText="Sr.No">
                                 <ItemTemplate>
@@ -294,7 +305,7 @@
 
                     <div class="mt-5 mb-2">
                         <div class="text-end">
-                            <asp:Button ID="btnBasicAmount" runat="server" Text="Calculate (Basic Amount)" OnClick="btnBasicAmount_Click" CssClass="btn btn-info mb-3" />
+                            <asp:Button ID="btnBasicAmount" runat="server" Text="Calculate (Basic Amount)" OnClick="btnBasicAmount_Click" CssClass="btn btn-custom mb-3" />
                         </div>
                     </div>
                     <div class="row mb-3">
@@ -306,36 +317,16 @@
                             </div>
                         </div>
                     </div>
-                    <div class="mt-5 mb-3">
-                        <div class="text-end">
-                            <asp:Button ID="btnSubmitBasicAmount" runat="server" Text="Submit Basic Amount" OnClick="btnSubmitBasicAmount_Click" CssClass="btn btn-primary mb-3" />
+                    <div class="row mt-5 mb-3">
+                        <div class="col-md-6 text-start">
+                            <asp:Button ID="btnBack" runat="server" Text="Back" OnClick="btnBack_Click" CssClass="btn btn-custom mb-3" />
+                        </div>
+                        <div class="col-md-6 text-end">
+                            <asp:Button ID="btnSubmitBasicAmount" runat="server" Text="Submit Basic Amount" OnClick="btnSubmitBasicAmount_Click" CssClass="btn btn-custom mb-3" />
                         </div>
                     </div>
 
                 </div>
-            </div>
-        </div>
-
-
-
-
-
-        <div class="mt-5 mx-auto col-md-11">
-            <div class="">
-                <asp:GridView ShowHeaderWhenEmpty="true" ID="GridTest" runat="server" AutoGenerateColumns="false"
-                    CssClass="table table-bordered border border-1 border-dark-subtle table-hover text-center">
-                    <HeaderStyle CssClass="align-middle custom-header-style" />
-                    <Columns>
-                        <asp:TemplateField ControlStyle-CssClass="col-xs-1" HeaderText="Sr.No">
-                            <ItemTemplate>
-                                <asp:HiddenField ID="id" runat="server" Value="id" />
-                                <span>
-                                    <%#Container.DataItemIndex + 1%>
-                                </span>
-                            </ItemTemplate>
-                        </asp:TemplateField>
-                    </Columns>
-                </asp:GridView>
             </div>
         </div>
 

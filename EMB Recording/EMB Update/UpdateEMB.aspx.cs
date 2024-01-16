@@ -1,9 +1,11 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
+using System.Net.Http;
 using System.Web;
 using System.Web.UI;
 using System.Web.UI.WebControls;
@@ -16,73 +18,162 @@ public partial class Emp_Calculation_UpdateEMB : System.Web.UI.Page
     string workOrderRefID;
     string vendorRefID;
 
+    //public class Api
+    //{
+    //    public string Command { get; set; }
+    //    public Dictionary<string, string> Parameters { get; set; }
+    //    public string Connection { get; set; }
+    //    public string AccessKey { get; set; }
+    //}
+
+    //private DataTable getApiCall(string sql, Dictionary<string, string> para)
+    //{
+    //    Api mPara = new Api
+    //    {
+    //        Command = sql,
+    //        Parameters = para,
+    //        Connection = "Ginie"
+    //    };
+
+    //    string jsonContent = JsonConvert.SerializeObject(mPara);
+    //    StringContent stringContent = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
+
+    //    string apiUrl = "http://101.53.144.92/wms/api/Get/Table";
+
+    //    using (HttpClient client = new HttpClient())
+    //    {
+    //        HttpResponseMessage response = client.PostAsync(apiUrl, stringContent).Result;
+
+    //        if (response.IsSuccessStatusCode)
+    //        {
+    //            string jsonResponse = response.Content.ReadAsStringAsync().Result;
+
+    //            DataTable dt = JsonConvert.DeserializeObject<DataTable>(jsonResponse);
+
+    //            return dt;
+    //        }
+    //        else
+    //        {
+    //            return new DataTable();
+    //        }
+    //    }
+    //}
+
     protected void Page_Load(object sender, EventArgs e)
     {
         if (!IsPostBack)
         {
             Bind_EMBHeader();
             Bind_Role_Project();
-
-            //BindDynamicGridView();
-
-            //redirect with only message
-            //string message = "vendor : " + vendorRefID;
-            //string script = $"alert('{message}');";
-            //ScriptManager.RegisterStartupScript(this, this.GetType(), "messageScript", script, true);
         }
     }
 
-    protected void BindDynamicGridView()
+    //=============================={ Sweet Alert }============================================
+
+    // sweet alert - success only
+    private void getSweetAlertSuccessOnly()
     {
-        DataTable dt = new DataTable();
+        string title = "Saved!";
+        string message = "Record saved successfully!";
+        string icon = "success";
+        string confirmButtonText = "OK";
 
-        using (SqlConnection con = new SqlConnection(connectionString))
-        {
-            con.Open();
-            string sql = "select * from VendorMaster874";
-            //string sql = "select * from VendorMaster874";
-            SqlCommand cmd = new SqlCommand(sql, con);
-
-            SqlDataAdapter ad = new SqlDataAdapter(cmd);
-            ad.Fill(dt);
-            con.Close();
-        }
-
-        if (dt.Rows.Count > 0)
-        {
-            // turning OFF column auto generation
-            GridTest.AutoGenerateColumns = true;
-
-            // assigning data source to GridView
-            GridTest.DataSource = dt;
-            GridTest.DataBind();
-
-            // Clear existing columns
-            GridTest.Columns.Clear();
-
-            // Dynamically creating BoundFields or Columns using from the data source
-            foreach (DataColumn col in dt.Columns)
-            {
-                BoundField boundField = new BoundField();
-                boundField.DataField = col.ColumnName;
-                boundField.HeaderText = col.ColumnName;
-                GridTest.Columns.Add(boundField);
-            }
-
-            // turning ON column auto generation
-            GridTest.AutoGenerateColumns = false;
-        }
-        else
-        {
-            //redirect with only message
-            string message = "No records";
-            string script = $"alert('{message}');";
-            ScriptManager.RegisterStartupScript(this, this.GetType(), "messageScript", script, true);
-        }
+        string sweetAlertScript =
+            $@"<script>
+                Swal.fire({{ 
+                    title: '{title}', 
+                    text: '{message}', 
+                    icon: '{icon}', 
+                    confirmButtonText: '{confirmButtonText}' 
+                }});
+            </script>";
+        ClientScript.RegisterStartupScript(this.GetType(), "sweetAlert", sweetAlertScript, false);
     }
+
+    // sweet alert - success redirect
+    private void getSweetAlertSuccessRedirect(string redirectUrl)
+    {
+        string title = "Saved!";
+        string message = "Record saved successfully!";
+        string icon = "success";
+        string confirmButtonText = "OK";
+
+        string sweetAlertScript =
+            $@"<script>
+                Swal.fire({{ 
+                    title: '{title}', 
+                    text: '{message}', 
+                    icon: '{icon}', 
+                    confirmButtonText: '{confirmButtonText}' 
+                }}).then((result) => {{
+                    if (result.isConfirmed) {{
+                        window.location.href = '{redirectUrl}';
+                    }}
+                }});
+            </script>";
+        ClientScript.RegisterStartupScript(this.GetType(), "sweetAlert", sweetAlertScript, false);
+    }
+
+    // sweet alert - success redirect block
+    private void getSweetAlertSuccessRedirectMandatory(string titles, string mssg, string redirectUrl)
+    {
+        string title = titles;
+        string message = mssg;
+        string icon = "success";
+        string confirmButtonText = "OK";
+        string allowOutsideClick = "false"; // Prevent closing on outside click
+
+        string sweetAlertScript =
+        $@"<script>
+            Swal.fire({{ 
+                title: '{title}', 
+                text: '{message}', 
+                icon: '{icon}', 
+                confirmButtonText: '{confirmButtonText}', 
+                allowOutsideClick: {allowOutsideClick}
+            }}).then((result) => {{
+                if (result.isConfirmed) {{
+                    window.location.href = '{redirectUrl}';
+                }}
+            }});
+        </script>";
+        ClientScript.RegisterStartupScript(this.GetType(), "sweetAlert", sweetAlertScript, false);
+    }
+
+    // sweet alert - error only block
+    private void getSweetAlertErrorMandatory(string titles, string mssg)
+    {
+        string title = titles;
+        string message = mssg;
+        string icon = "error";
+        string confirmButtonText = "OK";
+        string allowOutsideClick = "false"; // Prevent closing on outside click
+
+        string sweetAlertScript =
+        $@"<script>
+            Swal.fire({{ 
+                title: '{title}', 
+                text: '{message}', 
+                icon: '{icon}', 
+                confirmButtonText: '{confirmButtonText}', 
+                allowOutsideClick: {allowOutsideClick}
+            }});
+        </script>";
+        ClientScript.RegisterStartupScript(this.GetType(), "sweetAlert", sweetAlertScript, false);
+    }
+
+    //========================================================================================
 
     private void Bind_EMBHeader()
     {
+        //string sql = "select * from EmbMaster874";
+        //Dictionary<string, string> para = new Dictionary<string, string>();
+        ////para["ParameterName1"] = "Value1";
+        //DataTable dt = getApiCall(sql, para);
+
+        //gridEMBHeader.DataSource = dt;
+        //gridEMBHeader.DataBind();
+
         using (SqlConnection con = new SqlConnection(connectionString))
         {
             con.Open();
@@ -462,8 +553,7 @@ public partial class Emp_Calculation_UpdateEMB : System.Web.UI.Page
         using (SqlConnection con = new SqlConnection(connectionString))
         {
             con.Open();
-            //string sql = "SELECT BoQItemName, BoqUOM, BoqQty, BoqPenQty, BoQUptoPreRaQty, BoqQtyDIff, BoQItemRate, BasicAmount FROM EmbRecords874 WHERE EmbHeaderId=@EmbHeaderId";
-            string sql = "SELECT BoQItemName, BoqUOM, BoqQty, BoqPenQty, BoqQtyMeas, BoQUptoPreRaQty, BoqQtyDIff, BoQItemRate, BasicAmount FROM EmbRecords874 WHERE EmbHeaderId=@EmbHeaderId";
+            string sql = "SELECT BoQItemName, BoqUOM, BoqQty, BoqPenQty, BoqQtyMeas, BoQUptoPreRaQty, BoqQtyDIff, BoQItemRate, BasicAmount, BoQAllowVar FROM EmbRecords874 WHERE EmbHeaderId=@EmbHeaderId";
 
             SqlCommand cmd = new SqlCommand(sql, con);
             cmd.Parameters.AddWithValue("@EmbHeaderId", rowId.ToString());
@@ -655,63 +745,114 @@ public partial class Emp_Calculation_UpdateEMB : System.Web.UI.Page
         DataTable dt = (DataTable)Session["BoQDTUpdate"];
         DataTable embRecordsDT = getEmbRecordsByHeaderId(Session["RowID"].ToString());
 
-        try
+        bool isPositive = true;
+        bool someBoqQtyMeasured = false;
+        bool withinAllowedVariation = true;
+
+        // pre loop to check for any negative boq qty measured & at least one boq qty measured & boq qty measured is withtin aloowed variation
+        foreach (GridViewRow row in gridDynamicBOQ.Rows)
         {
-            using (SqlConnection con = new SqlConnection(connectionString))
+            TextBox qtyMeasured = row.FindControl("BoqQtyMeas") as TextBox;
+            double boqQtyMeasured = Convert.ToDouble(qtyMeasured.Text);
+
+            //=================================================================
+            // to get the current row index
+            int rowIndex = row.RowIndex;
+
+            double pendingBoqQty = Convert.ToDouble(dt.Rows[rowIndex]["BoqPenQty"]);
+
+            // boq allowed qty measured
+            double boqAllowedVariation = Convert.ToDouble(dt.Rows[rowIndex]["BoQAllowVar"]);
+            double boqAllowedValue = pendingBoqQty + ((pendingBoqQty * boqAllowedVariation) / 100);
+
+            if (boqQtyMeasured < 0.00 && boqQtyMeasured < 0)
             {
-                con.Open();
+                isPositive = false; // negative boq entry
+            }
 
-                foreach (GridViewRow row in gridDynamicBOQ.Rows)
-                {
-                    // to get the current row index
-                    int rowIndex = row.RowIndex;
+            if (boqQtyMeasured > 0.00 && boqQtyMeasured > 0)
+            {
+                someBoqQtyMeasured = true;
+            }
 
-                    double boqQty = Convert.ToDouble(dt.Rows[rowIndex]["BoqQty"]);
-
-                    double calculatedBasicAmount = Convert.ToDouble(txtBasicAmt.Text);
-
-                    //============{ Performing Calculations }================
-
-                    TextBox qtyMeasured = row.FindControl("BoqQtyMeas") as TextBox;
-                    double boqQtyMeasured = Convert.ToDouble(qtyMeasured.Text);
-
-                    double oldBoqPendingQty = Convert.ToDouble(dt.Rows[rowIndex]["BoqPenQty"]);
-                    double boqPendingQty = oldBoqPendingQty - boqQtyMeasured;
-
-                    double boqQtyDiff = boqQty - (oldBoqPendingQty - boqQtyMeasured);
-
-                    //============{ inserting using sql }================
-
-                    string sql = "UPDATE EmbRecords874 " +
-                                 "SET " +
-                                 "BoqPenQty=@BoqPenQty, BoqQtyMeas=@BoqQtyMeas,  BoqQtyDIff=@BoqQtyDIff,  BasicAmount=@BasicAmount " +
-                                 "WHERE ID=@ID";
-
-                    SqlCommand cmd = new SqlCommand(sql, con);
-                    cmd.Parameters.AddWithValue("@BoqPenQty", boqPendingQty);
-                    cmd.Parameters.AddWithValue("@BoqQtyMeas", boqQtyMeasured);
-                    cmd.Parameters.AddWithValue("@BoqQtyDIff", boqQtyDiff);
-                    cmd.Parameters.AddWithValue("@BasicAmount", calculatedBasicAmount);
-                    cmd.Parameters.AddWithValue("@ID", embRecordsDT.Rows[rowIndex]["ID"].ToString());
-                    cmd.ExecuteNonQuery();
-                }
-
-                con.Close();
-
-                btnSubmitBasicAmount.Enabled = false;
-
-                //redirect with only message
-                string message = "EMB Recordings Updated Successfully !";
-                string href = "UpdateEMB.aspx";
-                string script = $"alert('{message}');location.href = '{href}';";
-                ScriptManager.RegisterStartupScript(this, this.GetType(), "messageScript", script, true);
+            if (boqQtyMeasured > boqAllowedValue)
+            {
+                withinAllowedVariation = false;
             }
         }
-        catch (Exception ex)
+
+        if (isPositive)
         {
-            string message1 = "Exception while inserting EMB Details";
-            string script1 = $"alert('{message1}');";
-            ScriptManager.RegisterStartupScript(this, this.GetType(), "messageScript", script1, true);
+            if (someBoqQtyMeasured)
+            {
+                if (withinAllowedVariation)
+                {
+                    using (SqlConnection con = new SqlConnection(connectionString))
+                    {
+                        con.Open();
+
+                        foreach (GridViewRow row in gridDynamicBOQ.Rows)
+                        {
+                            // to get the current row index
+                            int rowIndex = row.RowIndex;
+
+                            double boqQty = Convert.ToDouble(dt.Rows[rowIndex]["BoqQty"]);
+
+                            double calculatedBasicAmount = Convert.ToDouble(txtBasicAmt.Text);
+
+                            //============{ Performing Calculations }================
+
+                            TextBox qtyMeasured = row.FindControl("BoqQtyMeas") as TextBox;
+                            double boqQtyMeasured = Convert.ToDouble(qtyMeasured.Text);
+
+                            double oldBoqPendingQty = Convert.ToDouble(dt.Rows[rowIndex]["BoqPenQty"]);
+                            double boqPendingQty = oldBoqPendingQty - boqQtyMeasured;
+
+                            double boqQtyDiff = boqQty - (oldBoqPendingQty - boqQtyMeasured);
+
+                            //============{ inserting using sql }================
+
+                            string sql = "UPDATE EmbRecords874 " +
+                                         "SET " +
+                                         "BoqPenQty=@BoqPenQty, BoqQtyMeas=@BoqQtyMeas,  BoqQtyDIff=@BoqQtyDIff,  BasicAmount=@BasicAmount " +
+                                         "WHERE ID=@ID";
+
+                            SqlCommand cmd = new SqlCommand(sql, con);
+                            cmd.Parameters.AddWithValue("@BoqPenQty", boqPendingQty);
+                            cmd.Parameters.AddWithValue("@BoqQtyMeas", boqQtyMeasured);
+                            cmd.Parameters.AddWithValue("@BoqQtyDIff", boqQtyDiff);
+                            cmd.Parameters.AddWithValue("@BasicAmount", calculatedBasicAmount);
+                            cmd.Parameters.AddWithValue("@ID", embRecordsDT.Rows[rowIndex]["ID"].ToString());
+                            cmd.ExecuteNonQuery();
+                        }
+
+                        con.Close();
+
+                        btnSubmitBasicAmount.Enabled = false;
+
+                        //redirect with only message
+                        string message = "EMB Recordings Updated Successfully !";
+                        string href = "UpdateEMB.aspx";
+                        string script = $"alert('{message}');location.href = '{href}';";
+                        ScriptManager.RegisterStartupScript(this, this.GetType(), "messageScript", script, true);
+                    }
+                }
+                else
+                {
+                    // sweet alert - error only block
+                    getSweetAlertErrorMandatory("Oops!", "Measured BOQ qty exceeded variation limit!");
+                }
+            }
+            else
+            {
+                // sweet alert - error only block
+                getSweetAlertErrorMandatory("Oops!", "Measure atleast one BOQ quantity to insert record !");
+            }
+        }
+        else
+        {
+            // sweet alert - error only block
+            getSweetAlertErrorMandatory("Oops!", "Please add positive BOQ quantity only!");
         }
     }
 
@@ -731,5 +872,10 @@ public partial class Emp_Calculation_UpdateEMB : System.Web.UI.Page
             con.Close();
             return dt;
         }
+    }
+
+    protected void btnBack_Click(object sender, EventArgs e)
+    {
+        Response.Redirect("UpdateEMB.aspx");
     }
 }

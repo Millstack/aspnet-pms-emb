@@ -1,18 +1,41 @@
 ﻿
 
-
-
-
-
-#GridTest th.custom-header-style {
-    background-color: #425ad1 !important;
-    color: white !important; /* Set text color to ensure visibility on the background */
+/* grid background color */
+.grid-custom th {
+    background-color: #4f64cc !important;
+    color: white !important;
+    font-size: 13px !important;
+    font-family: Verdana !important;
+    font-weight: normal !important;
 }
 
 
-.text-bg-custom {
-    background-color: #425ad1;
+/* button background color */
+.btn-custom {
+    background-color: #4f64cc;
+    color: white;
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+    font-weight: normal;
 }
+
+.btn-custom:hover,
+.btn-custom:active,
+.btn-custom:focus {
+    background-color: #2b3b80;
+    color: white;
+}
+
+
+
+
+
+
+
+
+
+
+
 
 /*dropdown select2 load*/
 .select2-selection__arrow {
