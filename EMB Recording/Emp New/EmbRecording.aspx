@@ -41,8 +41,10 @@
                 <asp:Literal ID="lit" Text="EMB Recording" runat="server"></asp:Literal>
             </div>
         </div>
+
         <div class="card no-b no-r px-1 mt-1 shadow-sm mx-auto col-md-11">
             <div class="card-body">
+
                 <div class="row mb-2">
                     <div class="form-row col-md-6 align-self-end">
                         <div class="form-group m-0">
@@ -50,7 +52,6 @@
                                 <asp:Literal ID="Literal1" Text="Category" runat="server"></asp:Literal>
                                 <asp:RequiredFieldValidator ID="RequiredFieldValidator2" ControlToValidate="ddCat" CssClass="invalid-feedback" InitialValue="0" runat="server" ErrorMessage="(Please select the category)" SetFocusOnError="True" Display="Dynamic" ToolTip="Required"></asp:RequiredFieldValidator>
                             </div>
-                            <%--<div class="border border-secondary-subtle bg-light rounded-1 fs-6 fw-light py-1">--%>
                             <div class="py-1">
                                 <asp:UpdatePanel ID="UpdatePanel1" runat="server">
                                     <ContentTemplate>
@@ -194,11 +195,22 @@
             </div>
         </div>
 
+
+        <!-- BOQ Grid -->
         <div id="gridEmbDiv" runat="server" visible="false" class="mt-5 mx-auto col-md-11">
+
+            <hr class="border border-1 border-dark-subtle mt-4" />
+            <div class="text-start">
+                <div class="fw-normal fs-5 fw-medium text-body-secondary">
+                    <asp:Literal ID="Literal19" Text="BOQ Items List" runat="server"></asp:Literal>
+                </div>
+            </div>
+            <hr class="border border-1 border-dark-subtle mb-4" />
+
             <div class="">
                 <asp:GridView ShowHeaderWhenEmpty="true" ID="gridDynamicBOQ" runat="server" AutoGenerateColumns="false" OnRowDataBound="GridDyanmic_RowDataBound"
                     CssClass="table table-bordered  border border-1 border-secondary-subtle table-hover text-center grid-custom">
-                    <HeaderStyle CssClass="align-middle"/>
+                    <HeaderStyle CssClass="align-middle" />
                     <Columns>
                         <asp:TemplateField ControlStyle-CssClass="col-md-1" HeaderText="Sr.No">
                             <ItemTemplate>
@@ -241,8 +253,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="mt-5 mb-3">
-                    <div class="text-end">
+                <div class="row mt-5 mb-3">
+                    <div class="col-md-6 text-start">
+                        <asp:Button ID="btnBack" runat="server" Text="Back" OnClick="btnBack_Click" CssClass="btn btn-custom mb-3" />
+                    </div>
+                    <div class="col-md-6 text-end">
                         <asp:Button ID="btnSubmitBasicAmount" Enabled="false" runat="server" Text="Submit Basic Amount" OnClick="btnSubmitBasicAmount_Click" CssClass="btn btn-custom mb-3" />
                     </div>
                 </div>

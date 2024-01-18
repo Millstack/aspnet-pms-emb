@@ -614,6 +614,11 @@ public partial class Emp_Calculation_EmbRecording : System.Web.UI.Page
 
     //=============================={ Submit Button Event }============================================
 
+    protected void btnBack_Click(object sender, EventArgs e)
+    {
+        Response.Redirect("Update/UpdateEMB.aspx");
+    }
+
     protected void btnSubmitBasicAmount_Click(object sender, EventArgs e)
     {
         // inserting EMB header info
@@ -717,7 +722,7 @@ public partial class Emp_Calculation_EmbRecording : System.Web.UI.Page
                         cmd.Parameters.AddWithValue("@RefID", RefID.ToString());
                         //cmd.ExecuteNonQuery();
 
-                        int headerId = Convert.ToInt32(cmd.ExecuteScalar()); // 
+                        int headerId = Convert.ToInt32(cmd.ExecuteScalar());
                         con.Close();
 
                         // inserting EMB details

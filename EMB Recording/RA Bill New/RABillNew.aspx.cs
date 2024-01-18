@@ -33,16 +33,6 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
 
             Session["AccountHeadDT"] = "";
             Session["UpdateAccountHeadDT"] = "";
-
-            //string sql = "select * from WorkOrder874";
-
-            //Dictionary<string, string> para = new Dictionary<string, string>();
-            ////para["LogId"] = "Milind";
-
-            //DataTable dt = new DataTable();
-
-            //DAL dal = new DAL();
-            //dt = dal.GetDataTable(sql, para);
         }
     }
 
@@ -397,15 +387,6 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
 
     //=============================={ Fill BoQ Grid Records }============================================
 
-    protected void GridDyanmic_RowDataBound(object sender, GridViewRowEventArgs e)
-    {
-        if (e.Row.RowType == DataControlRowType.DataRow && (e.Row.RowState & DataControlRowState.Edit) > 0)
-        {
-            // Set the row in edit mode
-            e.Row.RowState = e.Row.RowState ^ DataControlRowState.Edit;
-        }
-    }
-
     protected void GridTax_RowDataBound(object sender, GridViewRowEventArgs e)
     {
         if (e.Row.RowType == DataControlRowType.DataRow && (e.Row.RowState & DataControlRowState.Edit) > 0)
@@ -418,7 +399,7 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
         {
             DataTable accountHeadDT;
 
-            if(Session["UpdateAccountHeadDT"].ToString() == "")
+            if(Session["AccountHeadDT"].ToString() == "")
             {
                 // fetching acount head or taxes
                 accountHeadDT = getAccountHead();
@@ -426,48 +407,96 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
             else
             {
                 // fetching acount head or taxes
-                accountHeadDT = (DataTable)Session["UpdateAccountHeadDT"];
+                accountHeadDT = (DataTable)Session["AccountHeadDT"];
             }
 
-            // adding + / - dropdowns
+            //=================================={ Add/Less column }========================================
             DropDownList ddlAddLess = (DropDownList)e.Row.FindControl("AddLess");
+
             if (ddlAddLess != null)
             {
-                // Add options dynamically
-                ddlAddLess.Items.Add(new ListItem("+", "Add"));
-                ddlAddLess.Items.Add(new ListItem("-", "Less"));
-
-                // Set selected value based on the "AddLess" column in the DataTable
                 string addLessValue = accountHeadDT.Rows[e.Row.RowIndex]["AddLess"].ToString();
-
-                // Set the selected value in the DropDownList
-                ListItem selectedListItem = ddlAddLess.Items.FindByValue(addLessValue);
-                if (selectedListItem != null)
-                {
-                    selectedListItem.Selected = true;
-                }
+                ddlAddLess.SelectedValue = addLessValue;
             }
 
-            // adding % / ₹ dropdowns
+            //=================================={ Percentage/Amount column }========================================
             DropDownList ddlPerOrAmnt = (DropDownList)e.Row.FindControl("PerOrAmnt");
             if (ddlPerOrAmnt != null)
             {
-                // Add options dynamically
-                ddlPerOrAmnt.Items.Add(new ListItem("%", "Percentage"));
-                ddlPerOrAmnt.Items.Add(new ListItem("₹", "Amount"));
-
-                // Set selected value based on the "PerOrAmnt" column in the DataTable
                 string perOrAmntValue = accountHeadDT.Rows[e.Row.RowIndex]["PerOrAmnt"].ToString();
-
-                // Set the selected value in the DropDownList
-                ListItem selectedListItem = ddlPerOrAmnt.Items.FindByValue(perOrAmntValue);
-                if (selectedListItem != null)
-                {
-                    selectedListItem.Selected = true;
-                }
+                ddlPerOrAmnt.SelectedValue = perOrAmntValue;
             }
         }
     }
+
+    protected void GridTax_RowUpdating(object sender, GridViewUpdateEventArgs e)
+    {
+        // Access the updated values from the grid
+        string updatedAddLessValue = ((DropDownList)GridTax.Rows[e.RowIndex].FindControl("AddLess")).SelectedValue;
+        string updatedPerOrAmntValue = ((DropDownList)GridTax.Rows[e.RowIndex].FindControl("PerOrAmnt")).SelectedValue;
+
+        // Perform calculations or other logic based on the updated values
+
+        double basicAmount = Convert.ToDouble(txtBasicAmt.Text);
+        double totalDeduction = 0.00;
+        double totalAddition = 0.00;
+        double netAmount = 0.00;
+
+        foreach (GridViewRow row in GridTax.Rows)
+        {
+            int rowIndex = row.RowIndex;
+
+            // parameters
+            TextBox DeductionHeadStr = row.FindControl("DeductionHead") as TextBox;
+            TextBox FactorInPercentage = row.FindControl("FactorInPer") as TextBox;
+            DropDownList perOrAmntDropDown = row.FindControl("PerOrAmnt") as DropDownList;
+            DropDownList AddLessDropown = row.FindControl("AddLess") as DropDownList;
+            TextBox TaxAccountHeadAmount = row.FindControl("TaxAmount") as TextBox;
+
+            string DeductionHead = (DeductionHeadStr.Text).ToString();
+            double factorInPer = Convert.ToDouble(FactorInPercentage.Text);
+            string perOrAmnt = perOrAmntDropDown.SelectedValue;
+            string addLess = AddLessDropown.SelectedValue;
+            double taxAmount = Convert.ToDouble(TaxAccountHeadAmount.Text);
+
+            // tax amount
+            taxAmount = (basicAmount * factorInPer) / 100;
+
+            if (addLess == "Add")
+            {
+                totalAddition = totalAddition + taxAmount;
+            }
+            else
+            {
+                totalDeduction = totalDeduction + taxAmount;
+            }
+        }
+
+        // filling total deduction
+        txtTotalDeduct.Text = Math.Abs(totalDeduction).ToString("N2");
+
+        // filling total addition
+        txtTotalAdd.Text = totalAddition.ToString("N2");
+
+        // Net Amount after tax deductions or addition
+        netAmount = (basicAmount + totalAddition) - Math.Abs(totalDeduction);
+        txtNetAmnt.Text = netAmount.ToString("N2");
+
+
+
+
+        // Update the values in the data source (e.g., DataTable)
+        DataTable accountHeadDT = (DataTable)Session["AccountHeadDT"];
+        accountHeadDT.Rows[e.RowIndex]["AddLess"] = updatedAddLessValue;
+        accountHeadDT.Rows[e.RowIndex]["PerOrAmnt"] = updatedPerOrAmntValue;
+
+        // Update the DataTable in the session
+        Session["AccountHeadDT"] = accountHeadDT;
+
+        GridTax.DataSource = accountHeadDT;
+        GridTax.DataBind();
+    }
+
 
     private void autoFilltaxHeads(DataTable accountHeadDT, double bscAmnt)
     {
@@ -559,114 +588,31 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
         }
     }
 
-    protected void btnReCalTax_Click(object sender, EventArgs e)
-    {
-        // Account Head DataTable
-        DataTable dt = (DataTable)Session["AccountHeadDT"];
-
-        // basic amount
-        double basicAmount = Convert.ToDouble(txtBasicAmt.Text);
-        double totalDeduction = 0.00;
-        double totalAddition = 0.00;
-        double netAmount = 0.00;
-
-        // Create a new DataTable
-        DataTable newDataTable = new DataTable();
-        newDataTable.Columns.Add("DeductionHead", typeof(string));
-        newDataTable.Columns.Add("FactorInPer", typeof(double));
-        newDataTable.Columns.Add("PerOrAmnt", typeof(string));
-        newDataTable.Columns.Add("AddLess", typeof(string));
-        newDataTable.Columns.Add("TaxAmount", typeof(double));
-
-        foreach (GridViewRow row in GridTax.Rows)
-        {
-            // to get the current row index
-            int rowIndex = row.RowIndex;
-
-            // Check if the DataTable has a row at the specified position
-            if (newDataTable.Rows.Count <= rowIndex)
-            {
-                // If not, add a new row to the DataTable
-                DataRow newRow = newDataTable.NewRow();
-                newDataTable.Rows.Add(newRow);
-            }
-
-            // parameters
-            TextBox DeductionHeadStr = row.FindControl("DeductionHead") as TextBox;
-            TextBox FactorInPercentage = row.FindControl("FactorInPer") as TextBox;
-            DropDownList perOrAmntDropDown = row.FindControl("PerOrAmnt") as DropDownList;
-            DropDownList AddLessDropown = row.FindControl("AddLess") as DropDownList;
-            TextBox TaxAccountHeadAmount = row.FindControl("TaxAmount") as TextBox;
-
-            string DeductionHead = (DeductionHeadStr.Text).ToString();
-            double factorInPer = Convert.ToDouble(FactorInPercentage.Text);
-            string perOrAmnt = perOrAmntDropDown.SelectedValue;
-            string addLess = AddLessDropown.SelectedValue;
-            double taxAmount = Convert.ToDouble(TaxAccountHeadAmount.Text);
-
-            // tax amount
-            taxAmount = (basicAmount * factorInPer) / 100;
-
-            if (addLess == "Add")
-            {
-                totalAddition = totalAddition + taxAmount;
-            }
-            else
-            {
-                totalDeduction = totalDeduction + taxAmount;
-            }
-
-            newDataTable.Rows[rowIndex]["DeductionHead"] = DeductionHead;
-            newDataTable.Rows[rowIndex]["FactorInPer"] = factorInPer;
-            newDataTable.Rows[rowIndex]["PerOrAmnt"] = perOrAmnt;
-            newDataTable.Rows[rowIndex]["AddLess"] = addLess;
-            newDataTable.Rows[rowIndex]["TaxAmount"] = taxAmount;
-        }
-
-        // filling total deduction
-        txtTotalDeduct.Text = Math.Abs(totalDeduction).ToString("N2");
-
-        // filling total addition
-        txtTotalAdd.Text = totalAddition.ToString("N2");
-
-        // Net Amount after tax deductions or addition
-        netAmount = (basicAmount + totalAddition) - Math.Abs(totalDeduction);
-        txtNetAmnt.Text = netAmount.ToString("N2");
-
-        Session["UpdateAccountHeadDT"] = newDataTable;
-        GridTax.DataSource = newDataTable;
-        GridTax.DataBind();
-    }
-
     //=============================={ Button Click }============================================
 
     protected void btnBasicAmount_Click(object sender, EventArgs e)
     {
         DataTable dt = (DataTable)Session["BoQDT"];
 
-        int basicAmount = 0;
+        double basicAmount = 0;
 
         if (dt != null)
         {
             // Iterate through each row in the GridView
             foreach (GridViewRow row in gridDynamicBOQ.Rows)
             {
-                TextBox boqQty = row.FindControl("QtyMeasure") as TextBox;
-                int qtyMeasuredValue = Convert.ToInt32(boqQty.Text);
+                // code to read values from row-bound grid columns
+                //TextBox boqQty = row.FindControl("QtyMeasure") as TextBox;
+                //int qtyMeasuredValue = Convert.ToInt32(boqQty.Text);
 
-                int rowIndex = row.RowIndex;
-                int boqUnitRate = Convert.ToInt32(dt.Rows[rowIndex]["BoqRate"]);
+                int rowIndex = row.RowIndex; // current row
 
-                if (qtyMeasuredValue != 0 && boqUnitRate != 0)
-                {
-                    int prod = (qtyMeasuredValue * boqUnitRate);
+                // code to read normal grid column values
+                double qtyMeasured = Convert.ToInt32(dt.Rows[rowIndex]["BoqQtyMeas"]);
+                double boqUnitRate = Convert.ToInt32(dt.Rows[rowIndex]["BoQItemRate"]);
 
-                    // Perform operations with the value
-                    basicAmount = basicAmount + prod;
-                }
-
-                // You can break the loop if you only need the value from the first row
-                //break;
+                double prod = (qtyMeasured * boqUnitRate);
+                basicAmount = basicAmount + prod;
             }
 
             string basicAmountStr = basicAmount.ToString("N0");
@@ -674,6 +620,62 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
             txtBasicAmt.CssClass = "form-control fw-normal border border-2";
             txtBasicAmt.Text = basicAmountStr;
         }
+    }
+
+    protected void btnReCalTax_Click(object sender, EventArgs e)
+    {
+        //// Account Head DataTable
+        //DataTable dt = (DataTable)Session["AccountHeadDT"];
+
+        //// basic amount
+        //double basicAmount = Convert.ToDouble(txtBasicAmt.Text);
+        //double totalDeduction = 0.00;
+        //double totalAddition = 0.00;
+        //double netAmount = 0.00;
+
+        //foreach (GridViewRow row in GridTax.Rows)
+        //{
+        //    // to get the current row index
+        //    int rowIndex = row.RowIndex;
+
+        //    // parameters
+        //    TextBox DeductionHeadStr = row.FindControl("DeductionHead") as TextBox;
+        //    TextBox FactorInPercentage = row.FindControl("FactorInPer") as TextBox;
+        //    DropDownList perOrAmntDropDown = row.FindControl("PerOrAmnt") as DropDownList;
+        //    DropDownList AddLessDropown = row.FindControl("AddLess") as DropDownList;
+        //    TextBox TaxAccountHeadAmount = row.FindControl("TaxAmount") as TextBox;
+
+        //    string DeductionHead = (DeductionHeadStr.Text).ToString();
+        //    double factorInPer = Convert.ToDouble(FactorInPercentage.Text);
+        //    string perOrAmnt = perOrAmntDropDown.SelectedValue;
+        //    string addLess = AddLessDropown.SelectedValue;
+        //    double taxAmount = Convert.ToDouble(TaxAccountHeadAmount.Text);
+
+        //    // tax amount
+        //    taxAmount = (basicAmount * factorInPer) / 100;
+
+        //    if (addLess == "Add")
+        //    {
+        //        totalAddition = totalAddition + taxAmount;
+        //    }
+        //    else
+        //    {
+        //        totalDeduction = totalDeduction + taxAmount;
+        //    }
+        //}
+
+        //// filling total deduction
+        //txtTotalDeduct.Text = Math.Abs(totalDeduction).ToString("N2");
+
+        //// filling total addition
+        //txtTotalAdd.Text = totalAddition.ToString("N2");
+
+        //// Net Amount after tax deductions or addition
+        //netAmount = (basicAmount + totalAddition) - Math.Abs(totalDeduction);
+        //txtNetAmnt.Text = netAmount.ToString("N2");
+
+        //GridTax.DataSource = newDataTable;
+        //GridTax.DataBind();
     }
 
     protected void btnDocUpload_Click(object sender, EventArgs e)
@@ -718,7 +720,7 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
                 GridDocument.DataSource = dt;
                 GridDocument.DataBind();
 
-                btnSubmit.Enabled = true;
+                //btnSubmit.Enabled = true;
             }
         }
     }
@@ -804,6 +806,11 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
     }
 
     //=============================={ Submit Button }============================================
+
+    protected void btnBack_Click(object sender, EventArgs e)
+    {
+        Response.Redirect("Update/RABillUpdate.aspx");
+    }
 
     protected void btnSubmit_Click(object sender, EventArgs e)
     {

@@ -33,7 +33,7 @@
             </div>
         </div>
 
-        <div class="card no-b no-r px-1 mt-1 shadow-sm mx-auto col-md-11">
+        <div class="card mt-1 shadow-sm mx-auto col-md-11">
             <div class="card-body">
 
                 <div class=" row mb-2">
@@ -143,302 +143,312 @@
                     </div>
                 </div>
 
-            </div>
-        </div>
 
 
-        <div id="gridEmbDiv" runat="server" visible="false" class="mt-5 mx-auto col-md-11">
 
-            <!-- BoQ Grid -->
-            <hr class="border border-1 border-dark-subtle mt-4" />
-            <div class="text-start">
-                <div class="fw-normal fs-5 fw-medium text-body-secondary">
-                    <asp:Literal ID="Literal19" Text="EMB Abstract Items List" runat="server"></asp:Literal>
-                </div>
-            </div>
-            <hr class="border border-1 border-dark-subtle mb-4" />
+                <div id="gridEmbDiv" runat="server" visible="false" class="mt-5">
 
-            <div class="">
-                <asp:GridView ShowHeaderWhenEmpty="true" ID="gridDynamicBOQ" runat="server" AutoGenerateColumns="false" OnRowDataBound="GridDyanmic_RowDataBound"
-                    CssClass="table table-bordered  border border-1 border-dark-subtle table-hover text-center">
-                    <HeaderStyle CssClass="align-middle table-primary" />
-                    <Columns>
-                        <asp:TemplateField ControlStyle-CssClass="col-md-1" HeaderText="Sr.No">
-                            <ItemTemplate>
-                                <asp:HiddenField ID="id" runat="server" Value="id" />
-                                <span>
-                                    <%#Container.DataItemIndex + 1%>
-                                </span>
-                            </ItemTemplate>
-                            <ItemStyle CssClass="col-md-1" />
-                            <ItemStyle Font-Size="15px" />
-                        </asp:TemplateField>
-                        <asp:BoundField DataField="BoQItemName" HeaderText="Item Description" SortExpression="BoQItemName" ReadOnly="true" ItemStyle-Font-Size="15px" ItemStyle-CssClass="align-middle text-start fw-light" />
-                        <asp:BoundField DataField="BoQUOM" HeaderText="UOM" SortExpression="BoQUOM" ReadOnly="true" ItemStyle-Font-Size="15px" ItemStyle-CssClass="col-md-1 align-middle fw-light" />
-                        <asp:BoundField DataField="BoqQty" HeaderText="BoQ Qty" SortExpression="BoqQty" ItemStyle-Font-Size="15px" ItemStyle-CssClass="col-md-1 align-middle fw-light" />
-                        <asp:BoundField DataField="BoqQtyMeas" HeaderText="Abstract Qty" SortExpression="BoqQtyMeas" ItemStyle-Font-Size="15px" ItemStyle-CssClass="col-md-1 align-middle fw-light" />
-                        <asp:BoundField DataField="BoqQtyDIff" HeaderText="Diff In Qty" SortExpression="BoqQtyDIff" ItemStyle-Font-Size="15px" ItemStyle-CssClass="col-md-1 align-middle fw-light" />
-                        <asp:BoundField DataField="BoQItemRate" HeaderText="BoQ Unit Rate" SortExpression="BoQItemRate" ItemStyle-Font-Size="15px" ItemStyle-CssClass="col-md-1 align-middle fw-light" />
-                    </Columns>
-                </asp:GridView>
-
-                <div class="mt-5 mb-2">
-                    <div class="text-end">
-                        <asp:Button ID="btnBasicAmount" runat="server" Text="Re-Calculate (Basic Amount)" OnClick="btnBasicAmount_Click" CssClass="btn btn-info text-white mb-3" />
+                    <div class="div-custom">
+                        <hr class="border border-1 border-dark-subtle mt-4" />
+                        <div class="text-start">
+                            <div class="fw-normal fs-5 fw-medium text-body-secondary">
+                                <asp:Literal ID="Literal19" Text="EMB Abstract Items List" runat="server"></asp:Literal>
+                            </div>
+                        </div>
+                        <hr class="border border-1 border-dark-subtle mb-4" />
                     </div>
-                </div>
 
-                <div class="row mb-3">
-                    <div class="col-md-3 align-self-end">
-                        <div class="form-group m-0">
-                            <div class="mb-1 text-body-tertiary fw-semibold fs-6">
-                                <asp:Literal ID="Literal12" Text="Bill Date" runat="server">
-                                    Bill Date
+                    <!-- BoQ Grid -->
+                    <div class="">
+                        <asp:GridView ShowHeaderWhenEmpty="true" ID="gridDynamicBOQ" runat="server" AutoGenerateColumns="false"
+                            CssClass="table table-bordered  border border-1 border-dark-subtle table-hover text-center grid-custom">
+                            <HeaderStyle CssClass="align-middle" />
+                            <Columns>
+                                <asp:TemplateField ControlStyle-CssClass="col-md-1" HeaderText="Sr.No">
+                                    <ItemTemplate>
+                                        <asp:HiddenField ID="id" runat="server" Value="id" />
+                                        <span>
+                                            <%#Container.DataItemIndex + 1%>
+                                        </span>
+                                    </ItemTemplate>
+                                    <ItemStyle CssClass="col-md-1" />
+                                    <ItemStyle Font-Size="15px" />
+                                </asp:TemplateField>
+                                <asp:BoundField DataField="BoQItemName" HeaderText="Item Description" ReadOnly="true" ItemStyle-Font-Size="15px" ItemStyle-CssClass="align-middle text-start fw-light" />
+                                <asp:BoundField DataField="BoQUOM" HeaderText="UOM" ReadOnly="true" ItemStyle-Font-Size="15px" ItemStyle-CssClass="col-md-1 align-middle fw-light" />
+                                <asp:BoundField DataField="BoqQty" HeaderText="BoQ Qty" ItemStyle-Font-Size="15px" ItemStyle-CssClass="col-md-1 align-middle fw-light" />
+                                <asp:BoundField DataField="BoqQtyMeas" HeaderText="Abstract Qty" ItemStyle-Font-Size="15px" ItemStyle-CssClass="col-md-1 align-middle fw-light" />
+                                <asp:BoundField DataField="BoqQtyDIff" HeaderText="Diff In Qty" ItemStyle-Font-Size="15px" ItemStyle-CssClass="col-md-1 align-middle fw-light" />
+                                <asp:BoundField DataField="BoQItemRate" HeaderText="BoQ Unit Rate" ItemStyle-Font-Size="15px" ItemStyle-CssClass="col-md-1 align-middle fw-light" />
+                            </Columns>
+                        </asp:GridView>
+
+                        <div class="mt-5 mb-2">
+                            <div class="text-end">
+                                <asp:Button ID="btnBasicAmount" runat="server" Text="Re-Calculate (Basic Amount)" OnClick="btnBasicAmount_Click" CssClass="btn btn-custom text-white mb-3" />
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-3 align-self-end">
+                                <div class="form-group m-0">
+                                    <div class="mb-1 text-body-tertiary fw-semibold fs-6">
+                                        <asp:Literal ID="Literal12" Text="Bill Date" runat="server">
+                                            Bill Date
+                                            <em style="color: red">*</em>
+                                        </asp:Literal>
+                                        <div>
+                                            <asp:RequiredFieldValidator ID="RequiredFieldValidator9" ControlToValidate="dateBillDate" ValidationGroup="finalSubmit" CssClass="invalid-feedback" InitialValue="" runat="server" ErrorMessage="(Please select the date)" SetFocusOnError="True" Display="Dynamic" ToolTip="Required"></asp:RequiredFieldValidator>
+                                        </div>
+                                    </div>
+                                    <asp:TextBox runat="server" ID="dateBillDate" type="date" CssClass="form-control border border-secondary-subtle bg-light rounded-1 fs-6 fw-light py-1"></asp:TextBox>
+                                </div>
+                            </div>
+                            <div class="col-md-3 align-self-end">
+                                <div class="form-group m-0">
+                                    <div class="mb-1 text-body-tertiary fw-semibold fs-6">
+                                        <asp:Literal ID="Literal10" Text="Bill No." runat="server">
+                                            Bill No.
+                                            <em style="color: red">*</em>
+                                        </asp:Literal>
+                                        <div>
+                                            <asp:RequiredFieldValidator ID="RequiredFieldValidator5" ControlToValidate="txtBillNo" ValidationGroup="finalSubmit" CssClass="invalid-feedback" InitialValue="" runat="server" ErrorMessage="(Please select the date)" SetFocusOnError="True" Display="Dynamic" ToolTip="Required"></asp:RequiredFieldValidator>
+                                        </div>
+                                    </div>
+                                    <asp:TextBox runat="server" ID="txtBillNo" type="text" CssClass="form-control border border-secondary-subtle bg-light rounded-1 fs-6 fw-light py-1"></asp:TextBox>
+                                </div>
+                            </div>
+                            <div class="col-md-3 align-self-end">
+                                <div class="form-group m-0">
+                                    <div class="mb-1 text-body-tertiary fw-semibold fs-6">
+                                        <asp:Literal ID="Literal1" Text="Payment Due Date" runat="server">
+                                            Payment Due Date
+                                            <em style="color: red">*</em>
+                                        </asp:Literal>
+                                        <div>
+                                            <asp:RequiredFieldValidator ID="RequiredFieldValidator2" ControlToValidate="datePayDueDate" ValidationGroup="finalSubmit" CssClass="invalid-feedback" InitialValue="" runat="server" ErrorMessage="(Please select the date)" SetFocusOnError="True" Display="Dynamic" ToolTip="Required"></asp:RequiredFieldValidator>
+                                        </div>
+                                    </div>
+                                    <asp:TextBox runat="server" ID="datePayDueDate" type="date" CssClass="form-control border border-secondary-subtle bg-light rounded-1 fs-6 fw-light py-1"></asp:TextBox>
+                                </div>
+                            </div>
+                            <div class="col-md-3 align-self-end">
+                                <asp:Literal ID="Literal5" Text="Payment Due Date" runat="server">
+                                    Basic Amount
                                     <em style="color: red">*</em>
                                 </asp:Literal>
+                                <div class="input-group">
+                                    <span class="input-group-text fs-5 fw-semibold">₹</span>
+                                    <asp:TextBox runat="server" ID="txtBasicAmt" CssClass="form-control fw-lighter border border-2" ReadOnly="true" placeholder="Total Basic Amount"></asp:TextBox>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div id="divTax" runat="server" visible="false" class="">
+
+                    <!-- Taxes / Account Head -->
+
+                    <hr class="border border-1 border-dark-subtle mt-4" />
+                    <div class="text-start">
+                        <div class="fw-normal fs-5 fw-medium text-body-secondary">
+                            <asp:Literal ID="Literal18" Text="Taxes / Charges" runat="server"></asp:Literal>
+                        </div>
+                    </div>
+                    <hr class="border border-1 border-dark-subtle" />
+
+                    <div class="mt-1">
+
+                        <div class="col-md-12">
+                            <asp:GridView ShowHeaderWhenEmpty="true" ID="GridTax" runat="server" AutoGenerateColumns="false" OnRowDataBound="GridTax_RowDataBound" OnRowUpdating="GridTax_RowUpdating"
+                                CssClass="table text-center">
+                                <HeaderStyle CssClass="align-middle fw-light table table-secondary" />
+                                <Columns>
+                                    <asp:TemplateField HeaderText="Deduction Head" ItemStyle-Font-Size="15px" ItemStyle-CssClass="col-md-4 align-middle text-start fw-light">
+                                        <ItemTemplate>
+                                            <asp:TextBox ID="DeductionHead" runat="server" Enabled="false" CssClass="col-md-9 fw-light bg-white border-0 py-1 px-2" Text='<%# Bind("DeductionHead") %>'></asp:TextBox>
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+
+                                    <asp:TemplateField HeaderText="Factor in %" ItemStyle-Font-Size="15px" ItemStyle-CssClass="col-md-2 align-middle">
+                                        <ItemTemplate>
+                                            <asp:TextBox ID="FactorInPer" runat="server" Enabled="true" CssClass="col-md-9 fw-light border border-secondary-subtle shadow-sm rounded-1 py-1 px-2" type="number" Text='<%# Bind("FactorInPer") %>'></asp:TextBox>
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+
+                                    <asp:TemplateField HeaderText="% / Amount" ItemStyle-Font-Size="15px" ItemStyle-CssClass="col-md-2 align-middle">
+                                        <ItemTemplate>
+                                            <asp:DropDownList ID="PerOrAmnt" runat="server" CssClass="col-md-6 text-center fw-light border border-secondary-subtle shadow-sm rounded-1 py-1 px-2">
+                                                <asp:ListItem Text="%" Value="Percentage"></asp:ListItem>
+                                                <asp:ListItem Text="₹" Value="Amount"></asp:ListItem>
+                                            </asp:DropDownList>
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+
+                                    <asp:TemplateField HeaderText="Add / Less" ItemStyle-Font-Size="15px" ItemStyle-CssClass="col-md-2 align-middle">
+                                        <ItemTemplate>
+                                            <asp:DropDownList ID="AddLess" runat="server" CssClass="col-md-6 text-center fw-light border border-secondary-subtle shadow-sm rounded-1 py-1 px-2">
+                                                <asp:ListItem Text="+" Value="Add"></asp:ListItem>
+                                                <asp:ListItem Text="-" Value="Less"></asp:ListItem>
+                                            </asp:DropDownList>
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+
+                                    <asp:TemplateField HeaderText="Amount" ItemStyle-Font-Size="15px" ItemStyle-CssClass="col-md-3 align-middle">
+                                        <ItemTemplate>
+                                            <asp:TextBox ID="TaxAmount" runat="server" Enabled="true" ReadOnly="true" CssClass="col-md-9 fw-light border border-secondary-subtle shadow-sm rounded-1 py-1 px-2" type="number" Text='<%# Bind("TaxAmount") %>'></asp:TextBox>
+                                        </ItemTemplate>
+                                    </asp:TemplateField>
+
+                                </Columns>
+                            </asp:GridView>
+                        </div>
+
+                        <div class="mt-3 mb-3">
+                            <div class="text-end">
+                                <asp:Button ID="btnReCalTax" Enabled="false" runat="server" Text="Re-Calculate (Taxes / Charges)" OnClick="btnReCalTax_Click" CssClass="btn btn-custom text-white mb-3" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Total Taxes & Net Amount -->
+                    <div class="mb-2">
+                        <div class="row mb-3">
+                            <div class="col-md-9 align-self-end">
+                                <!--  -->
+                            </div>
+                            <div class="col-md-3 align-self-end">
+                                <asp:Literal ID="Literal13" Text="Total Deductions :" runat="server"></asp:Literal>
+                                <div class="input-group text-end">
+                                    <span class="input-group-text fs-5 fw-light">₹</span>
+                                    <asp:TextBox runat="server" ID="txtTotalDeduct" CssClass="form-control fw-lighter border border-2" ReadOnly="true"></asp:TextBox>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-9 align-self-end">
+                                <!--  -->
+                            </div>
+                            <div class="col-md-3 align-self-end">
+                                <asp:Literal ID="Literal11" Text="Total Additions :" runat="server"></asp:Literal>
+                                <div class="input-group text-end">
+                                    <span class="input-group-text fs-5 fw-light">₹</span>
+                                    <asp:TextBox runat="server" ID="txtTotalAdd" CssClass="form-control fw-lighter border border-2" ReadOnly="true"></asp:TextBox>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-9 align-self-end">
+                                <!--  -->
+                            </div>
+                            <div class="col-md-3 align-self-end">
+                                <asp:Literal ID="Literal14" Text="Net Amount :" runat="server"></asp:Literal>
+                                <div class="input-group text-end">
+                                    <span class="input-group-text fs-5 fw-light">₹</span>
+                                    <asp:TextBox runat="server" ID="txtNetAmnt" CssClass="form-control fw-lighter border border-2" ReadOnly="true"></asp:TextBox>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <!-- Upload Document -->
+                    <hr class="border border-1 border-dark-subtle mt-4" />
+
+                    <div class="text-start">
+                        <div class="fw-normal fs-5 fw-medium text-body-secondary">
+                            <asp:Literal ID="Literal17" Text="Document Upload" runat="server"></asp:Literal>
+                        </div>
+                    </div>
+
+                    <hr class="border border-1 border-dark-subtle" />
+
+
+                    <div class="row mb-3 mb-2">
+                        <div class="col-md-4 align-self-end">
+                            <div class="form-group m-0">
+                                <div class="mb-1 text-body-tertiary fw-semibold fs-6">
+                                    <asp:Literal ID="Literal15" Text="Bill Date" runat="server">
+                                        Document Type
+                                        <em style="color: red">*</em>
+                                    </asp:Literal>
+                                </div>
                                 <div>
-                                    <asp:RequiredFieldValidator ID="RequiredFieldValidator9" ControlToValidate="dateBillDate" CssClass="invalid-feedback" InitialValue="" runat="server" ErrorMessage="(Please select the date)" SetFocusOnError="True" Display="Dynamic" ToolTip="Required"></asp:RequiredFieldValidator>
+                                    <asp:RequiredFieldValidator ID="RequiredFieldValidator8" ControlToValidate="ddDocType" ValidationGroup="finalSubmit" CssClass="invalid-feedback" InitialValue="0" runat="server" ErrorMessage="(Please select the doc type)" SetFocusOnError="True" Display="Dynamic" ToolTip="Required"></asp:RequiredFieldValidator>
                                 </div>
+                                <asp:DropDownList ID="ddDocType" ClientIDMode="Static" runat="server" class="form-control is-invalid"></asp:DropDownList>
                             </div>
-                            <asp:TextBox runat="server" ID="dateBillDate" type="date" CssClass="form-control border border-secondary-subtle bg-light rounded-1 fs-6 fw-light py-1"></asp:TextBox>
                         </div>
-                    </div>
-                    <div class="col-md-3 align-self-end">
-                        <div class="form-group m-0">
-                            <div class="mb-1 text-body-tertiary fw-semibold fs-6">
-                                <asp:Literal ID="Literal10" Text="Bill No." runat="server">
-                                    Bill No.
-                                    <em style="color: red">*</em>
-                                </asp:Literal>
+                        <div class="col-md-4 align-self-end">
+                            <div class="form-group m-0">
+                                <div class="mb-1 text-body-tertiary fw-semibold fs-6">
+                                    <asp:Literal ID="Literal16" Text="Bill No." runat="server">
+                                        Stages
+                                        <em style="color: red">*</em>
+                                    </asp:Literal>
+                                </div>
                                 <div>
-                                    <asp:RequiredFieldValidator ID="RequiredFieldValidator5" ControlToValidate="txtBillNo" CssClass="invalid-feedback" InitialValue="" runat="server" ErrorMessage="(Please select the date)" SetFocusOnError="True" Display="Dynamic" ToolTip="Required"></asp:RequiredFieldValidator>
+                                    <asp:RequiredFieldValidator ID="RequiredFieldValidator7" ControlToValidate="ddStage" ValidationGroup="finalSubmit" CssClass="invalid-feedback" InitialValue="0" runat="server" ErrorMessage="(Please select the stage)" SetFocusOnError="True" Display="Dynamic" ToolTip="Required"></asp:RequiredFieldValidator>
                                 </div>
+                                <asp:DropDownList ID="ddStage" ClientIDMode="Static" runat="server" class="form-control is-invalid"></asp:DropDownList>
                             </div>
-                            <asp:TextBox runat="server" ID="txtBillNo" type="text" CssClass="form-control border border-secondary-subtle bg-light rounded-1 fs-6 fw-light py-1"></asp:TextBox>
                         </div>
-                    </div>
-                    <div class="col-md-3 align-self-end">
-                        <div class="form-group m-0">
-                            <div class="mb-1 text-body-tertiary fw-semibold fs-6">
-                                <asp:Literal ID="Literal1" Text="Payment Due Date" runat="server">
-                                    Payment Due Date
-                                    <em style="color: red">*</em>
-                                </asp:Literal>
-                                <div>
-                                    <asp:RequiredFieldValidator ID="RequiredFieldValidator2" ControlToValidate="datePayDueDate" CssClass="invalid-feedback" InitialValue="" runat="server" ErrorMessage="(Please select the date)" SetFocusOnError="True" Display="Dynamic" ToolTip="Required"></asp:RequiredFieldValidator>
+                        <div class="col-md-4 align-self-end">
+                            <div class="form-group">
+                                <div class="mb-1 text-body-tertiary fw-semibold fs-6">
+                                    <label for="fileDoc" class="form-label">
+                                        Upload Document
+                                        <em style="color: red">*</em>
+                                    </label>
                                 </div>
-                            </div>
-                            <asp:TextBox runat="server" ID="datePayDueDate" type="date" CssClass="form-control border border-secondary-subtle bg-light rounded-1 fs-6 fw-light py-1"></asp:TextBox>
-                        </div>
-                    </div>
-                    <div class="col-md-3 align-self-end">
-                        <asp:Literal ID="Literal5" Text="Payment Due Date" runat="server">
-                            Basic Amount
-                            <em style="color: red">*</em>
-                        </asp:Literal>
-                        <div class="input-group">
-                            <span class="input-group-text fs-5 fw-semibold">₹</span>
-                            <asp:TextBox runat="server" ID="txtBasicAmt" CssClass="form-control fw-lighter border border-2" ReadOnly="true" placeholder="Total Basic Amount"></asp:TextBox>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <div id="divTax" runat="server" visible="false" class="col-md-11 mx-auto">
-
-            <!-- Taxes / Account Head -->
-
-            <hr class="border border-1 border-dark-subtle mt-4" />
-            <div class="text-start">
-                <div class="fw-normal fs-5 fw-medium text-body-secondary">
-                    <asp:Literal ID="Literal18" Text="Taxes / Charges" runat="server"></asp:Literal>
-                </div>
-            </div>
-            <hr class="border border-1 border-dark-subtle" />
-
-            <div class="mt-1">
-
-                <div class="col-md-12">
-                    <asp:GridView ShowHeaderWhenEmpty="true" ID="GridTax" runat="server" AutoGenerateColumns="false" OnRowDataBound="GridTax_RowDataBound"
-                        CssClass="table text-center">
-                        <HeaderStyle CssClass="align-middle table-secondary fw-light" />
-                        <Columns>
-                            <asp:TemplateField HeaderText="Deduction Head" ItemStyle-Font-Size="15px" ItemStyle-CssClass="col-md-4 align-middle text-start fw-light">
-                                <ItemTemplate>
-                                    <asp:TextBox ID="DeductionHead" runat="server" Enabled="false" CssClass="col-md-9 fw-light bg-white border-0 py-1 px-2" Text='<%# Bind("DeductionHead") %>'></asp:TextBox>
-                                </ItemTemplate>
-                            </asp:TemplateField>
-
-                            <asp:TemplateField HeaderText="Factor in %" ItemStyle-Font-Size="15px" ItemStyle-CssClass="col-md-2 align-middle">
-                                <ItemTemplate>
-                                    <asp:TextBox ID="FactorInPer" runat="server" Enabled="true" CssClass="col-md-9 fw-light border border-secondary-subtle shadow-sm rounded-1 py-1 px-2" type="number" Text='<%# Bind("FactorInPer") %>'></asp:TextBox>
-                                </ItemTemplate>
-                            </asp:TemplateField>
-
-                            <asp:TemplateField HeaderText="% / Amount" ItemStyle-Font-Size="15px" ItemStyle-CssClass="col-md-2 align-middle">
-                                <ItemTemplate>
-                                    <asp:DropDownList ID="PerOrAmnt" runat="server" CssClass="col-md-6 text-center fw-light border border-secondary-subtle shadow-sm rounded-1 py-1 px-2"></asp:DropDownList>
-                                </ItemTemplate>
-                            </asp:TemplateField>
-
-                            <asp:TemplateField HeaderText="Add / Less" ItemStyle-Font-Size="15px" ItemStyle-CssClass="col-md-2 align-middle">
-                                <ItemTemplate>
-                                    <asp:DropDownList ID="AddLess" runat="server" CssClass="col-md-6 text-center fw-light border border-secondary-subtle shadow-sm rounded-1 py-1 px-2"></asp:DropDownList>
-                                </ItemTemplate>
-                            </asp:TemplateField>
-
-                            <asp:TemplateField HeaderText="Amount" ItemStyle-Font-Size="15px" ItemStyle-CssClass="col-md-3 align-middle">
-                                <ItemTemplate>
-                                    <asp:TextBox ID="TaxAmount" runat="server" Enabled="true" ReadOnly="true" CssClass="col-md-9 fw-light border border-secondary-subtle shadow-sm rounded-1 py-1 px-2" type="number" Text='<%# Bind("TaxAmount") %>'></asp:TextBox>
-                                </ItemTemplate>
-                            </asp:TemplateField>
-
-                        </Columns>
-                    </asp:GridView>
-                </div>
-
-                <div class="mt-3 mb-3">
-                    <div class="text-end">
-                        <asp:Button ID="btnReCalTax" Enabled="false" runat="server" Text="Re-Calculate (Taxes / Charges)" OnClick="btnReCalTax_Click" CssClass="btn btn-info text-white mb-3" />
-                    </div>
-                </div>
-            </div>
-
-            <!-- Total Taxes & Net Amount -->
-            <div class="mb-2">
-                <div class="row mb-3">
-                    <div class="col-md-9 align-self-end">
-                        <!--  -->
-                    </div>
-                    <div class="col-md-3 align-self-end">
-                        <asp:Literal ID="Literal13" Text="Total Deductions :" runat="server"></asp:Literal>
-                        <div class="input-group text-end">
-                            <span class="input-group-text fs-5 fw-light">₹</span>
-                            <asp:TextBox runat="server" ID="txtTotalDeduct" CssClass="form-control fw-lighter border border-2" ReadOnly="true"></asp:TextBox>
-                        </div>
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-9 align-self-end">
-                        <!--  -->
-                    </div>
-                    <div class="col-md-3 align-self-end">
-                        <asp:Literal ID="Literal11" Text="Total Additions :" runat="server"></asp:Literal>
-                        <div class="input-group text-end">
-                            <span class="input-group-text fs-5 fw-light">₹</span>
-                            <asp:TextBox runat="server" ID="txtTotalAdd" CssClass="form-control fw-lighter border border-2" ReadOnly="true"></asp:TextBox>
-                        </div>
-                    </div>
-                </div>
-                <div class="row mb-3">
-                    <div class="col-md-9 align-self-end">
-                        <!--  -->
-                    </div>
-                    <div class="col-md-3 align-self-end">
-                        <asp:Literal ID="Literal14" Text="Net Amount :" runat="server"></asp:Literal>
-                        <div class="input-group text-end">
-                            <span class="input-group-text fs-5 fw-light">₹</span>
-                            <asp:TextBox runat="server" ID="txtNetAmnt" CssClass="form-control fw-lighter border border-2" ReadOnly="true"></asp:TextBox>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-
-            <!-- Upload Document -->
-            <hr class="border border-1 border-dark-subtle mt-4" />
-
-            <div class="text-start">
-                <div class="fw-normal fs-5 fw-medium text-body-secondary">
-                    <asp:Literal ID="Literal17" Text="Document Upload" runat="server"></asp:Literal>
-                </div>
-            </div>
-
-            <hr class="border border-1 border-dark-subtle" />
-
-
-            <div class="row mb-3 mb-2">
-                <div class="col-md-4 align-self-end">
-                    <div class="form-group m-0">
-                        <div class="mb-1 text-body-tertiary fw-semibold fs-6">
-                            <asp:Literal ID="Literal15" Text="Bill Date" runat="server">
-                                    Document Type
-                                    <em style="color: red">*</em>
-                            </asp:Literal>
-                        </div>
-                        <div>
-                            <asp:RequiredFieldValidator ID="RequiredFieldValidator8" ControlToValidate="ddDocType" CssClass="invalid-feedback" InitialValue="0" runat="server" ErrorMessage="(Please select the doc type)" SetFocusOnError="True" Display="Dynamic" ToolTip="Required"></asp:RequiredFieldValidator>
-                        </div>
-                        <asp:DropDownList ID="ddDocType" ClientIDMode="Static" runat="server" class="form-control is-invalid"></asp:DropDownList>
-                    </div>
-                </div>
-                <div class="col-md-4 align-self-end">
-                    <div class="form-group m-0">
-                        <div class="mb-1 text-body-tertiary fw-semibold fs-6">
-                            <asp:Literal ID="Literal16" Text="Bill No." runat="server">
-                                    Stages
-                                    <em style="color: red">*</em>
-                            </asp:Literal>
-                        </div>
-                        <div>
-                            <asp:RequiredFieldValidator ID="RequiredFieldValidator7" ControlToValidate="ddStage" CssClass="invalid-feedback" InitialValue="0" runat="server" ErrorMessage="(Please select the stage)" SetFocusOnError="True" Display="Dynamic" ToolTip="Required"></asp:RequiredFieldValidator>
-                        </div>
-                        <asp:DropDownList ID="ddStage" ClientIDMode="Static" runat="server" class="form-control is-invalid"></asp:DropDownList>
-                    </div>
-                </div>
-                <div class="col-md-4 align-self-end">
-                    <div class="form-group">
-                        <div class="mb-1 text-body-tertiary fw-semibold fs-6">
-                            <label for="fileDoc" class="form-label">
-                                Upload Document
-                                <em style="color: red">*</em>
-                            </label>
-                        </div>
-                        <div class="justify-content-center">
-                            <div class="input-group has-validation">
-                                <asp:FileUpload ID="fileDoc" runat="server" CssClass="form-control" aria-describedby="inputGroupPrepend" required />
-                                <asp:Button ID="btnDocUpload" runat="server" OnClick="btnDocUpload_Click" Text="Upload" AutoPost="true" CssClass="btn btn-outline-secondary" />
-                                <div class="invalid-feedback">
-                                    Please choose a file
+                                <div class="justify-content-center">
+                                    <div class="input-group has-validation">
+                                        <asp:FileUpload ID="fileDoc" runat="server" CssClass="form-control" aria-describedby="inputGroupPrepend" />
+                                        <asp:Button ID="btnDocUpload" runat="server" OnClick="btnDocUpload_Click" Text="Upload" AutoPost="true" CssClass="btn btn-outline-secondary" />
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Document Grid -->
-            <div class="mt-5">
-                <asp:GridView ShowHeaderWhenEmpty="true" ID="GridDocument" runat="server" AutoGenerateColumns="false"
-                    CssClass="table table-bordered border border-light-subtle text-start mt-3">
-                    <HeaderStyle CssClass="align-middle table-secondary fw-light fs-6" />
-                    <Columns>
-                        <asp:BoundField DataField="docType" HeaderText="Document Type" ReadOnly="true" ItemStyle-Font-Size="15px" ItemStyle-CssClass="align-middle text-start fw-light" />
-                        <asp:BoundField DataField="stageLevel" HeaderText="Levels" ReadOnly="true" ItemStyle-Font-Size="15px" ItemStyle-CssClass="align-middle text-start fw-light" />
-                        <asp:BoundField DataField="onlyFileName" HeaderText="File Name" ReadOnly="true" ItemStyle-Font-Size="15px" ItemStyle-CssClass="align-middle text-start fw-light" />
+                    <!-- Document Grid -->
+                    <div class="mt-5">
+                        <asp:GridView ShowHeaderWhenEmpty="true" ID="GridDocument" runat="server" AutoGenerateColumns="false"
+                            CssClass="table table-bordered border border-light-subtle text-start mt-3 grid-custom">
+                            <HeaderStyle CssClass="align-middle fw-light fs-6" />
+                            <Columns>
+                                <asp:BoundField DataField="docType" HeaderText="Document Type" ReadOnly="true" ItemStyle-Font-Size="15px" ItemStyle-CssClass="align-middle text-start fw-light" />
+                                <asp:BoundField DataField="stageLevel" HeaderText="Levels" ReadOnly="true" ItemStyle-Font-Size="15px" ItemStyle-CssClass="align-middle text-start fw-light" />
+                                <asp:BoundField DataField="onlyFileName" HeaderText="File Name" ReadOnly="true" ItemStyle-Font-Size="15px" ItemStyle-CssClass="align-middle text-start fw-light" />
 
-                        <asp:TemplateField HeaderText="View Document" ItemStyle-Font-Size="15px" ItemStyle-CssClass="align-middle text-start fw-light">
-                            <ItemTemplate>
-                                <asp:HyperLink ID="hypDocPath" runat="server" Text="View Uploaded Document" NavigateUrl='<%# Eval("docPath") %>' Target="_blank" CssClass="text-decoration-none"></asp:HyperLink>
-                            </ItemTemplate>
-                        </asp:TemplateField>
-                    </Columns>
-                </asp:GridView>
-            </div>
-
-            <hr class="my-4 border border-2 border-dark-subtle" />
-
-            <!-- Submit Button -->
-            <div class="">
-                <div class="mt-5 mb-2">
-                    <div class="text-end">
-                        <asp:Button ID="btnSubmit" runat="server" Text="Submit" OnClick="btnSubmit_Click" CssClass="btn btn-primary text-white mb-5" />
+                                <asp:TemplateField HeaderText="View Document" ItemStyle-Font-Size="15px" ItemStyle-CssClass="align-middle text-start fw-light">
+                                    <ItemTemplate>
+                                        <asp:HyperLink ID="hypDocPath" runat="server" Text="View Uploaded Document" NavigateUrl='<%# Eval("docPath") %>' Target="_blank" CssClass="text-decoration-none"></asp:HyperLink>
+                                    </ItemTemplate>
+                                </asp:TemplateField>
+                            </Columns>
+                        </asp:GridView>
                     </div>
-                </div>
-            </div>
 
+                    <hr class="my-4 border border-2 border-dark-subtle" />
+
+                    <!-- Submit Button -->
+                    <div class="">
+                        <div class="row mt-5 mb-2">
+                            <%--<div class="col-md-6 text-start">
+                                <asp:Button ID="btnBack" runat="server" Text="Submit" OnClick="btnBack_Click" CssClass="btn btn-custom text-white mb-5" />
+                            </div>--%>
+                            <div class="text-end">
+                                <asp:Button ID="btnSubmit" runat="server" Text="Submit" OnClick="btnSubmit_Click" ValidationGroup="finalSubmit" CssClass="btn btn-custom text-white mb-5" />
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
         </div>
 
     </form>

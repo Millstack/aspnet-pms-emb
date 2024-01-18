@@ -15,7 +15,7 @@ public partial class Rpt_BeauroWiseCases : System.Web.UI.Page
     {
         if (!IsPostBack)
         {
-            BindCustomersAndGrid();
+            //BindCustomersAndGrid();
             BindDropDownCountry();
             BindDropDownState();
             BindDropDownCity();
@@ -40,6 +40,7 @@ public partial class Rpt_BeauroWiseCases : System.Web.UI.Page
     //The Grid will change when the button is being clicked
     protected void btnSearch_Click(object sender, EventArgs e)
     {
+        Radgrid1.Visible = true;
         BindCustomersAndGrid();
         Radgrid1.DataBind();
 
@@ -118,13 +119,18 @@ public partial class Rpt_BeauroWiseCases : System.Web.UI.Page
         using (SqlConnection con = new SqlConnection(connectionString))
         {
             con.Open();
-            string sql = @"SELECT a.RefID, a.CaseDate, r.BuroCity, a.OANo, a.ApplicantName, STRING_AGG(y.ApplicantCaty, ', ') WITHIN GROUP (ORDER BY y.ApplicantCaty) AS [ApplicantsCategory], e.ConOfficeName, x.CircleName, t.CourtName, a.RespoDesig    
+            string sql = @"SELECT a.RefID, a.CaseDate, r.BuroCity, a.OANo, a.ApplicantName, STRING_AGG(y.ApplicantCaty, ', ') WITHIN GROUP (ORDER BY y.ApplicantCaty) AS [ApplicantsCategory], e.ConOfficeName, x.CircleName, t.CourtName,rt.RespoType AS RespondantDesignation1,rt2.RespoType AS RespondantDesignation2,rt3.RespoType AS RespondantDesignation3,rt4.RespoType AS RespondantDesignation4,rt5.RespoType AS RespondantDesignation5,a.CaseBrief,a.KeyWord,a.HearDate,a.CaseCreDHO,a.CaseCreCSDist,a.MentHosp,a.AdhsLeprosy,a.HealthLab,a.RegWork,a.WingOff,a.TrainCent,a.AdhsMalaria,a.DmoOff,a.DocUpload   
                         FROM CaseCreation864 a
                         JOIN Buro864 r ON a.CaseCreBeuro = r.BuroID
                         JOIN Circle864 x ON a.CaseCreCircle = x.CircleID
                         JOIN ConcernOffices864 e ON a.ConOffice = e.ConOfficeID
                         JOIN TypeCourt864 t ON a.CourtName = t.CourtID
                         JOIN CatyApplicant864 y ON CHARINDEX(',' + CAST(y.ApplicantID AS NVARCHAR(MAX)) + ',', ',' + a.ApplicantCaty + ',') > 0 
+                        JOIN RespondentType864 rt ON a.RespoDesig = rt.RespoID 
+                        JOIN RespondentType864 rt2 ON a.RespoDesig2 = rt2.RespoID
+                        JOIN RespondentType864 rt3 ON a.RespoDesig3 = rt3.RespoID
+                        JOIN RespondentType864 rt4 ON a.RespoDesig4 = rt4.RespoID
+                        JOIN RespondentType864 rt5 ON a.RespoDesig5 = rt5.RespoID
                         WHERE 1=1";
 
             // Check if Employee ID is provided for filtering
@@ -161,7 +167,7 @@ public partial class Rpt_BeauroWiseCases : System.Web.UI.Page
             }
             
             
-            sql += " GROUP BY a.RefID, a.CaseDate, r.BuroCity, a.OANo, a.ApplicantName, e.ConOfficeName, x.CircleName, t.CourtName, a.RespoDesig";
+            sql += " GROUP BY a.RefID, a.CaseDate, r.BuroCity, a.OANo, a.ApplicantName, e.ConOfficeName, x.CircleName, t.CourtName, rt.RespoType, rt2.RespoType,rt3.RespoType,rt4.RespoType,rt5.RespoType,a.CaseBrief,a.KeyWord,a.HearDate,a.CaseCreDHO,a.CaseCreCSDist,a.MentHosp,a.AdhsLeprosy,a.HealthLab,a.RegWork,a.WingOff,a.TrainCent,a.AdhsMalaria,a.DmoOff,a.DocUpload";
 
             SqlCommand cmd = new SqlCommand(sql, con);
 
