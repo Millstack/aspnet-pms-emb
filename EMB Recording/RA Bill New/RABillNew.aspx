@@ -19,6 +19,11 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.3/dist/sweetalert2.min.css" rel="stylesheet" />
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.3/dist/sweetalert2.all.min.js"></script>
+
     <script src="RABillNew.js"></script>
     <link rel="stylesheet" type="text/css" href="RABillNew.css" />
 
@@ -146,16 +151,13 @@
 
 
 
-                <div id="gridEmbDiv" runat="server" visible="false" class="mt-5">
+                <div id="gridEmbDiv" runat="server" visible="false" class="mt-4">
 
-                    <div class="div-custom">
-                        <hr class="border border-1 border-dark-subtle mt-4" />
-                        <div class="text-start">
-                            <div class="fw-normal fs-5 fw-medium text-body-secondary">
-                                <asp:Literal ID="Literal19" Text="EMB Abstract Items List" runat="server"></asp:Literal>
-                            </div>
+                    <!-- Heading -->
+                    <div class="border-top border-bottom border-secondary-subtle py-3 my-4">
+                        <div class="fw-normal fs-5 fw-medium text-body-secondary">
+                            <asp:Literal ID="Literal19" Text="EMB Abstract Items List" runat="server"></asp:Literal>
                         </div>
-                        <hr class="border border-1 border-dark-subtle mb-4" />
                     </div>
 
                     <!-- BoQ Grid -->
@@ -249,20 +251,18 @@
 
                 <div id="divTax" runat="server" visible="false" class="">
 
-                    <!-- Taxes / Account Head -->
 
-                    <hr class="border border-1 border-dark-subtle mt-4" />
-                    <div class="text-start">
+                    <!-- Heading -->
+                    <div class="border-top border-bottom border-secondary-subtle py-3 my-4">
                         <div class="fw-normal fs-5 fw-medium text-body-secondary">
-                            <asp:Literal ID="Literal18" Text="Taxes / Charges" runat="server"></asp:Literal>
+                            <asp:Literal ID="Literal20" Text="Taxes / Charges" runat="server"></asp:Literal>
                         </div>
                     </div>
-                    <hr class="border border-1 border-dark-subtle" />
 
+                    <!-- Taxes / Account Head -->
                     <div class="mt-1">
-
-                        <div class="col-md-12">
-                            <asp:GridView ShowHeaderWhenEmpty="true" ID="GridTax" runat="server" AutoGenerateColumns="false" OnRowDataBound="GridTax_RowDataBound" OnRowUpdating="GridTax_RowUpdating"
+                        <div class="col-md-12 mb-2">
+                            <asp:GridView ShowHeaderWhenEmpty="true" ID="GridTax" runat="server" AutoGenerateColumns="false" OnRowDataBound="GridTax_RowDataBound"
                                 CssClass="table text-center">
                                 <HeaderStyle CssClass="align-middle fw-light table table-secondary" />
                                 <Columns>
@@ -354,18 +354,16 @@
                     </div>
 
 
-                    <!-- Upload Document -->
-                    <hr class="border border-1 border-dark-subtle mt-4" />
 
-                    <div class="text-start">
+
+                    <!-- Heading -->
+                    <div class="border-top border-bottom border-secondary-subtle py-3 my-4">
                         <div class="fw-normal fs-5 fw-medium text-body-secondary">
-                            <asp:Literal ID="Literal17" Text="Document Upload" runat="server"></asp:Literal>
+                            <asp:Literal ID="Literal18" Text="Document Upload" runat="server"></asp:Literal>
                         </div>
                     </div>
 
-                    <hr class="border border-1 border-dark-subtle" />
-
-
+                    <!-- Upload Document -->
                     <div class="row mb-3 mb-2">
                         <div class="col-md-4 align-self-end">
                             <div class="form-group m-0">
@@ -406,19 +404,28 @@
                                 <div class="justify-content-center">
                                     <div class="input-group has-validation">
                                         <asp:FileUpload ID="fileDoc" runat="server" CssClass="form-control" aria-describedby="inputGroupPrepend" />
-                                        <asp:Button ID="btnDocUpload" runat="server" OnClick="btnDocUpload_Click" Text="Upload" AutoPost="true" CssClass="btn btn-outline-secondary" />
+                                        <asp:Button ID="btnDocUpload" runat="server" OnClick="btnDocUpload_Click" Text="Upload" AutoPost="true" CssClass="btn btn-custom btn-outline-secondary" />
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Document Grid -->
+                    <!-- Document Grid OnRowCommand="GridDocument_RowCommand" -->
                     <div class="mt-5">
-                        <asp:GridView ShowHeaderWhenEmpty="true" ID="GridDocument" runat="server" AutoGenerateColumns="false"
+                        <asp:GridView ShowHeaderWhenEmpty="true" ID="GridDocument" runat="server" AutoGenerateColumns="false" 
                             CssClass="table table-bordered border border-light-subtle text-start mt-3 grid-custom">
                             <HeaderStyle CssClass="align-middle fw-light fs-6" />
                             <Columns>
+                                <asp:TemplateField ControlStyle-CssClass="col-md-1" HeaderText="Sr.No">
+                                    <ItemTemplate>
+                                        <asp:HiddenField ID="id" runat="server" Value="id" />
+                                        <span>
+                                            <%#Container.DataItemIndex + 1%>
+                                        </span>
+                                    </ItemTemplate>
+                                    <ItemStyle CssClass="col-md-1" />
+                                </asp:TemplateField>
                                 <asp:BoundField DataField="docType" HeaderText="Document Type" ReadOnly="true" ItemStyle-Font-Size="15px" ItemStyle-CssClass="align-middle text-start fw-light" />
                                 <asp:BoundField DataField="stageLevel" HeaderText="Levels" ReadOnly="true" ItemStyle-Font-Size="15px" ItemStyle-CssClass="align-middle text-start fw-light" />
                                 <asp:BoundField DataField="onlyFileName" HeaderText="File Name" ReadOnly="true" ItemStyle-Font-Size="15px" ItemStyle-CssClass="align-middle text-start fw-light" />
@@ -428,6 +435,16 @@
                                         <asp:HyperLink ID="hypDocPath" runat="server" Text="View Uploaded Document" NavigateUrl='<%# Eval("docPath") %>' Target="_blank" CssClass="text-decoration-none"></asp:HyperLink>
                                     </ItemTemplate>
                                 </asp:TemplateField>
+
+                                <%--<asp:TemplateField HeaderText="Action">
+                                    <ItemTemplate>
+                                        <asp:LinkButton runat="server" ID="btnDelete" CommandArgument='<%# Eval("id") %>' CommandName="lnkView" ToolTip="Delete" CssClass="shadow-sm">
+                                            <asp:Image runat="server" ImageUrl="../img/edit.png" AlternateText="Edit" style="width: 16px; height: 16px;"/>
+                                        </asp:LinkButton>
+                                    </ItemTemplate>
+                                    <ItemStyle HorizontalAlign="Center" Width="100px" />
+                                </asp:TemplateField>--%>
+
                             </Columns>
                         </asp:GridView>
                     </div>
@@ -437,10 +454,10 @@
                     <!-- Submit Button -->
                     <div class="">
                         <div class="row mt-5 mb-2">
-                            <%--<div class="col-md-6 text-start">
-                                <asp:Button ID="btnBack" runat="server" Text="Submit" OnClick="btnBack_Click" CssClass="btn btn-custom text-white mb-5" />
-                            </div>--%>
-                            <div class="text-end">
+                            <div class="col-md-6 text-start">
+                                <asp:Button ID="btnBack" runat="server" Text="Back" OnClick="btnBack_Click" CssClass="btn btn-custom text-white mb-5" />
+                            </div>
+                            <div class="col-md-6 text-end">
                                 <asp:Button ID="btnSubmit" runat="server" Text="Submit" OnClick="btnSubmit_Click" ValidationGroup="finalSubmit" CssClass="btn btn-custom text-white mb-5" />
                             </div>
                         </div>

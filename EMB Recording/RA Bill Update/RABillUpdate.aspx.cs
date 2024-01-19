@@ -29,10 +29,106 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
         {
             Bind_RaHeader();
             Bind_Role_Project();
-
-            //DirectSQLQuery();
         }
     }
+
+    //=============================={ Sweet Alert }============================================
+
+    // sweet alert - success only
+    private void getSweetAlertSuccessOnly()
+    {
+        string title = "Saved!";
+        string message = "Record saved successfully!";
+        string icon = "success";
+        string confirmButtonText = "OK";
+
+        string sweetAlertScript =
+            $@"<script>
+                Swal.fire({{ 
+                    title: '{title}', 
+                    text: '{message}', 
+                    icon: '{icon}', 
+                    confirmButtonText: '{confirmButtonText}' 
+                }});
+            </script>";
+        ClientScript.RegisterStartupScript(this.GetType(), "sweetAlert", sweetAlertScript, false);
+    }
+
+    // sweet alert - success redirect
+    private void getSweetAlertSuccessRedirect(string redirectUrl)
+    {
+        string title = "Saved!";
+        string message = "Record saved successfully!";
+        string icon = "success";
+        string confirmButtonText = "OK";
+        string allowOutsideClick = "false";
+
+        string sweetAlertScript =
+            $@"<script>
+                Swal.fire({{ 
+                    title: '{title}', 
+                    text: '{message}', 
+                    icon: '{icon}', 
+                    confirmButtonText: '{confirmButtonText}',
+                    allowOutsideClick: {allowOutsideClick}
+                }}).then((result) => {{
+                    if (result.isConfirmed) {{
+                        window.location.href = '{redirectUrl}';
+                    }}
+                }});
+            </script>";
+        ClientScript.RegisterStartupScript(this.GetType(), "sweetAlert", sweetAlertScript, false);
+    }
+
+    // sweet alert - success redirect block
+    private void getSweetAlertSuccessRedirectMandatory(string titles, string mssg, string redirectUrl)
+    {
+        string title = titles;
+        string message = mssg;
+        string icon = "success";
+        string confirmButtonText = "OK";
+        string allowOutsideClick = "false"; // Prevent closing on outside click
+
+        string sweetAlertScript =
+        $@"<script>
+            Swal.fire({{ 
+                title: '{title}', 
+                text: '{message}', 
+                icon: '{icon}', 
+                confirmButtonText: '{confirmButtonText}', 
+                allowOutsideClick: {allowOutsideClick}
+            }}).then((result) => {{
+                if (result.isConfirmed) {{
+                    window.location.href = '{redirectUrl}';
+                }}
+            }});
+        </script>";
+        ClientScript.RegisterStartupScript(this.GetType(), "sweetAlert", sweetAlertScript, false);
+    }
+
+    // sweet alert - error only block
+    private void getSweetAlertErrorMandatory(string titles, string mssg)
+    {
+        string title = titles;
+        string message = mssg;
+        string icon = "error";
+        string confirmButtonText = "OK";
+        string allowOutsideClick = "false"; // Prevent closing on outside click
+
+        string sweetAlertScript =
+        $@"<script>
+            Swal.fire({{ 
+                title: '{title}', 
+                text: '{message}', 
+                icon: '{icon}', 
+                confirmButtonText: '{confirmButtonText}', 
+                allowOutsideClick: {allowOutsideClick}
+            }});
+        </script>";
+        ClientScript.RegisterStartupScript(this.GetType(), "sweetAlert", sweetAlertScript, false);
+    }
+
+    //=========================={ Drop Down Binding }==========================
 
     private void Bind_RaHeader()
     {
@@ -49,27 +145,6 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
             con.Close();
         }
     }
-
-    private void DirectSQLQuery()
-    {
-        using (SqlConnection con = new SqlConnection(connectionString))
-        {
-            con.Open();
-            string sql = "select * from CaseCreation864";
-            SqlCommand cmd = new SqlCommand(sql, con);
-
-            SqlDataAdapter ad = new SqlDataAdapter(cmd);
-            DataTable dt = new DataTable();
-            ad.Fill(dt);
-            con.Close();
-
-            string message = "Case Creation Count: " + dt.Rows.Count;
-            string script = $"alert('{message}');";
-            ScriptManager.RegisterStartupScript(this, this.GetType(), "messageScript", script, true);
-        }
-    }
-
-    //=========================={ Drop Down Binding }==========================
 
     private void Bind_Role_Project()
     {
@@ -171,7 +246,7 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
         using (SqlConnection con = new SqlConnection(connectionString))
         {
             con.Open();
-            string sql = "SELECT * FROM DocType874";
+            string sql = "SELECT * FROM WorkStage874";
             SqlCommand cmd = new SqlCommand(sql, con);
             cmd.ExecuteNonQuery();
 
@@ -181,8 +256,8 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
             con.Close();
 
             ddStage.DataSource = dt;
-            ddStage.DataTextField = "DocType";
-            ddStage.DataValueField = "DocType";
+            ddStage.DataTextField = "StageLevel";
+            ddStage.DataValueField = "StageLevel";
             ddStage.DataBind();
             ddStage.Items.Insert(0, new ListItem("------Select Stage------", "0"));
         }
@@ -505,50 +580,39 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
         // Account Head DataTable
         DataTable dt = (DataTable)Session["AccountHeadDT"];
 
-        // basic amount
+        // Perform calculations or other logic based on the updated values
         double basicAmount = Convert.ToDouble(txtBasicAmt.Text);
         double totalDeduction = 0.00;
         double totalAddition = 0.00;
         double netAmount = 0.00;
 
-        // Create a new DataTable
-        DataTable newDataTable = new DataTable();
-        newDataTable.Columns.Add("DeductionHead", typeof(string));
-        newDataTable.Columns.Add("FactorInPer", typeof(double));
-        newDataTable.Columns.Add("PerOrAmnt", typeof(string));
-        newDataTable.Columns.Add("AddLess", typeof(string));
-        newDataTable.Columns.Add("TaxAmount", typeof(double));
-
-        if (dt != null)
+        foreach (GridViewRow row in GridTax.Rows)
         {
-            foreach (GridViewRow row in GridTax.Rows)
+            // Accessing the updated dropdown values from the grid
+            string updatedAddLessValue = ((DropDownList)row.FindControl("AddLess")).SelectedValue;
+            string updatedPerOrAmntValue = ((DropDownList)row.FindControl("PerOrAmnt")).SelectedValue;
+
+            int rowIndex = row.RowIndex;
+
+            // reading parameters from gridview
+            TextBox DeductionHeadStr = row.FindControl("DeductionHead") as TextBox;
+            TextBox FactorInPercentage = row.FindControl("FactorInPer") as TextBox;
+            DropDownList perOrAmntDropDown = row.FindControl("PerOrAmnt") as DropDownList;
+            DropDownList AddLessDropown = row.FindControl("AddLess") as DropDownList;
+            TextBox TaxAccountHeadAmount = row.FindControl("TaxAmount") as TextBox;
+
+            string DeductionHead = (DeductionHeadStr.Text).ToString();
+            double factorInPer = Convert.ToDouble(FactorInPercentage.Text);
+            string perOrAmnt = perOrAmntDropDown.SelectedValue;
+            string addLess = AddLessDropown.SelectedValue;
+            double taxAmount = Convert.ToDouble(TaxAccountHeadAmount.Text);
+
+            if (perOrAmnt == "Amount")
             {
-                // to get the current row index
-                int rowIndex = row.RowIndex;
+                taxAmount = factorInPer;
 
-                // Check if the DataTable has a row at the specified position
-                if (newDataTable.Rows.Count <= rowIndex)
-                {
-                    // If not, add a new row to the DataTable
-                    DataRow newRow = newDataTable.NewRow();
-                    newDataTable.Rows.Add(newRow);
-                }
-
-                // parameters
-                TextBox DeductionHeadStr = row.FindControl("DeductionHead") as TextBox;
-                TextBox FactorInPercentage = row.FindControl("FactorInPer") as TextBox;
-                DropDownList perOrAmntDropDown = row.FindControl("PerOrAmnt") as DropDownList;
-                DropDownList AddLessDropown = row.FindControl("AddLess") as DropDownList;
-                TextBox TaxAccountHeadAmount = row.FindControl("TaxAmount") as TextBox;
-
-                string DeductionHead = (DeductionHeadStr.Text).ToString();
-                double factorInPer = Convert.ToDouble(FactorInPercentage.Text);
-                string perOrAmnt = perOrAmntDropDown.SelectedValue;
-                string addLess = AddLessDropown.SelectedValue;
-                double taxAmount = Convert.ToDouble(TaxAccountHeadAmount.Text);
-
-                // tax amount
-                taxAmount = (basicAmount * factorInPer) / 100;
+                // setting tax head amount
+                TaxAccountHeadAmount.Text = Math.Abs(taxAmount).ToString("N2");
 
                 if (addLess == "Add")
                 {
@@ -558,28 +622,35 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
                 {
                     totalDeduction = totalDeduction + taxAmount;
                 }
-
-                newDataTable.Rows[rowIndex]["DeductionHead"] = DeductionHead;
-                newDataTable.Rows[rowIndex]["FactorInPer"] = factorInPer;
-                newDataTable.Rows[rowIndex]["PerOrAmnt"] = perOrAmnt;
-                newDataTable.Rows[rowIndex]["AddLess"] = addLess;
-                newDataTable.Rows[rowIndex]["TaxAmount"] = taxAmount;
             }
+            else
+            {
+                // tax amount (based on add or less)
+                taxAmount = (basicAmount * factorInPer) / 100;
 
-            // filling total deduction
-            txtTotalDeduct.Text = Math.Abs(totalDeduction).ToString("N2");
+                // setting tax head amount
+                TaxAccountHeadAmount.Text = Math.Abs(taxAmount).ToString("N2");
 
-            // filling total addition
-            txtTotalAdd.Text = totalAddition.ToString("N2");
-
-            // Net Amount after tax deductions or addition
-            netAmount = (basicAmount + totalAddition) - Math.Abs(totalDeduction);
-            txtNetAmnt.Text = netAmount.ToString("N2");
-
-            Session["UpdateAccountHeadDT"] = newDataTable;
-            GridTax.DataSource = newDataTable;
-            GridTax.DataBind();
+                if (addLess == "Add")
+                {
+                    totalAddition = totalAddition + taxAmount;
+                }
+                else
+                {
+                    totalDeduction = totalDeduction + taxAmount;
+                }
+            }
         }
+
+        // setting total deduction
+        txtTotalDeduct.Text = Math.Abs(totalDeduction).ToString("N2");
+
+        // setting total addition
+        txtTotalAdd.Text = totalAddition.ToString("N2");
+
+        // Net Amount after tax deductions or addition
+        netAmount = (basicAmount + totalAddition) - Math.Abs(totalDeduction);
+        txtNetAmnt.Text = netAmount.ToString("N2");
     }
 
     //========================================================================
@@ -755,25 +826,18 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
             // Iterate through each row in the GridView
             foreach (GridViewRow row in gridDynamicBOQ.Rows)
             {
-                TextBox boqQty = row.FindControl("BoqQtyMeas") as TextBox;
-                double qtyMeasuredValue = Convert.ToDouble(boqQty.Text);
+                // code to read values from row-bound grid columns
+                //TextBox boqQty = row.FindControl("BoqQtyMeas") as TextBox;
+                //double qtyMeasuredValue = Convert.ToDouble(boqQty.Text);
 
                 int rowIndex = row.RowIndex;
-                double boqUnitRate = Convert.ToDouble(dt.Rows[rowIndex]["BoQItemRate"]);
 
-                if (qtyMeasuredValue != 0.00 && boqUnitRate != 0.00)
-                {
-                    double prod = (qtyMeasuredValue * boqUnitRate);
+                double qtyMeasuredValue = Convert.ToDouble(dt.Rows[rowIndex]["RaAbstQty"]);
+                double boqUnitRate = Convert.ToDouble(dt.Rows[rowIndex]["RaItemRate"]);
 
-                    // Perform operations with the value
-                    basicAmount = basicAmount + prod;
-                }
-
-                // You can break the loop if you only need the value from the first row
-                //break;
+                double prod = (qtyMeasuredValue * boqUnitRate);
+                basicAmount = basicAmount + prod;
             }
-
-            //btnSubmitBasicAmount.Enabled = true;
 
             string basicAmountStr = basicAmount.ToString("N0");
 
@@ -901,12 +965,18 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
             ad.Fill(dt);
             con.Close();
 
-            // binding document details gridview
-            GridDocument.DataSource = dt;
-            GridDocument.DataBind();
+            if (dt != null)
+            {
+                docGrid.Visible = true;
 
-            // Saving DataTable to ViewState for further use to additon doc upload
-            ViewState["DocDetailsDataTable"] = dt;
+                // binding document details gridview
+                GridDocument.DataSource = dt;
+                GridDocument.DataBind();
+
+                // Saving DataTable to ViewState for further use to additon doc upload
+                ViewState["DocDetailsDataTable"] = dt;
+                Session["DocuUploadDTUpte"] = dt;
+            }
         }
     }
 
@@ -946,17 +1016,13 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
 
             // Save DataTable to ViewState
             ViewState["DocDetailsDataTable"] = dt;
+            Session["DocuUploadDTUpte"] = dt;
 
             if (dt.Rows.Count > 0)
             {
                 // binding document details gridview
                 GridDocument.DataSource = dt;
                 GridDocument.DataBind();
-
-                // alert pop-up with only message
-                //string message = "File has been added";
-                //string script = $"alert('{message}');";
-                //ScriptManager.RegisterStartupScript(this, this.GetType(), "messageScript", script, true);
             }
         }
     }
@@ -1030,6 +1096,11 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
 
     //=========================={ Submit Button Event }==========================
 
+    protected void btnBack_Click(object sender, EventArgs e)
+    {
+        Response.Redirect("RABillUpdate.aspx");
+    }
+
     protected void btnSubmit_Click(object sender, EventArgs e)
     {
         int RaHeaderID = Convert.ToInt32(Session["RowID"]);
@@ -1042,6 +1113,9 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
 
         // update Document Upload Details
         updateRaDocumentDetails(RaHeaderID);
+
+        // sweet alert - success redirect block
+        getSweetAlertSuccessRedirectMandatory("RA Bill updated", "the following RA Bill has been updated successfully", "");
     }
 
     private void updateRaTaxHeadGrid(int RaHeaderID)
@@ -1065,7 +1139,7 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
                         // parameters of textbox
                         TextBox DeductionHeadStr = row.FindControl("DeductionHead") as TextBox;
                         string DeductionHead = (DeductionHeadStr.Text).ToString();
-                       
+
                         TextBox FactorInPercentage = row.FindControl("FactorInPer") as TextBox;
                         double FactorInPer = Convert.ToDouble(FactorInPercentage.Text);
 
@@ -1103,28 +1177,129 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
 
     private void updateRaDetails(int RaHeaderID)
     {
-        try
-        {
-            // RA Header update total deduction, addition and Net Amount
+        // RA Header update total deduction, addition and Net Amount
+        double totalAddition = Convert.ToDouble(txtTotalAdd.Text);
+        double totalDeduction = Convert.ToDouble(txtTotalDeduct.Text);
+        double netAmount = Convert.ToDouble(txtNetAmnt.Text);
 
-            double totalDeduction = Convert.ToDouble(txtTotalDeduct.Text);
-            double totalAddition = Convert.ToDouble(txtTotalDeduct.Text);
-        }
-        catch(Exception ex)
+        using (SqlConnection con = new SqlConnection(connectionString))
         {
-
+            con.Open();
+            // inserting into Ra Tax
+            string sql = "UPDATE RaHeader874 SET RaTotalAdd=@RaTotalAdd, RaTotalDeduct=@RaTotalDeduct, RaNetAmount=@RaNetAmount WHERE RaHeaderID=@RaHeaderID";
+            SqlCommand cmd = new SqlCommand(sql, con);
+            cmd.Parameters.AddWithValue("@RaTotalAdd", totalAddition);
+            cmd.Parameters.AddWithValue("@RaTotalDeduct", totalDeduction);
+            cmd.Parameters.AddWithValue("@RaNetAmount", netAmount);
+            cmd.Parameters.AddWithValue("@RaHeaderID", RaHeaderID);
+            cmd.ExecuteNonQuery();
+            con.Close();
         }
     }
 
     private void updateRaDocumentDetails(int RaHeaderID)
     {
-        try
-        {
+        DataTable dt = (DataTable)Session["DocuUploadDTUpte"];
 
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            con.Open();
+
+            foreach (GridViewRow row in GridDocument.Rows)
+            {
+                // to get the current row index
+                int rowIndex = row.RowIndex;
+
+                // dropdown values
+                string docType = dt.Rows[rowIndex]["DocType"].ToString();
+                string stageLevel = dt.Rows[rowIndex]["StageLevel"].ToString();
+                string docName = dt.Rows[rowIndex]["DocName"].ToString();
+
+                // Find the HyperLink control in the current row
+                HyperLink hypDocPath = (HyperLink)row.FindControl("DocPath");
+                // Get the NavigateUrl property from the HyperLink control
+                string navigateUrl = hypDocPath.NavigateUrl;
+
+                // document ref id
+                string docRefID = dt.Rows[rowIndex]["RefID"].ToString();
+
+                //string message = "docRefID" + ": " + docRefID;
+                //string script = $"alert('{message}');";
+                //ScriptManager.RegisterStartupScript(this, this.GetType(), "messageScript", script, true);
+
+                // check for existing documents to update
+                bool isDocExist = checkForDocuUploadedExist(docRefID);
+
+                if (isDocExist)
+                {
+                    string sql = "UPDATE DocUpload874 SET DocType=@DocType, StageLevel=@StageLevel, DocName=@DocName, DocPath=@DocPath WHERE RefID=@RefID";
+
+                    SqlCommand cmd = new SqlCommand(sql, con);
+                    cmd.Parameters.AddWithValue("@DocType", docType);
+                    cmd.Parameters.AddWithValue("@StageLevel", stageLevel);
+                    cmd.Parameters.AddWithValue("@DocName", docName);
+                    cmd.Parameters.AddWithValue("@DocPath", navigateUrl);
+                    cmd.Parameters.AddWithValue("@RefID", docRefID);
+                    cmd.ExecuteNonQuery();
+                }
+                else
+                {
+                    // getting new doc ref id
+                    int newDocRefID = getDocUploadedRefID();
+
+                    string sql = "insert into DocUpload874 (RefID, RaHeaderID, DocType, StageLevel, DocName, DocPath) values (@RefID, @RaHeaderID, @DocType, @StageLevel, @DocName, @DocPath)";
+
+                    SqlCommand cmd = new SqlCommand(sql, con);
+                    cmd.Parameters.AddWithValue("@RefID", newDocRefID);
+                    cmd.Parameters.AddWithValue("@RaHeaderID", RaHeaderID);
+                    cmd.Parameters.AddWithValue("@DocType", docType);
+                    cmd.Parameters.AddWithValue("@StageLevel", stageLevel);
+                    cmd.Parameters.AddWithValue("@DocName", docName);
+                    cmd.Parameters.AddWithValue("@DocPath", navigateUrl);
+                    cmd.ExecuteNonQuery();
+                }
+            }
+
+            con.Close();
         }
-        catch (Exception ex)
-        {
+    }
 
+    //===============================================================================
+
+    private bool checkForDocuUploadedExist(string docRefID)
+    {
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            con.Open();
+            string sql = "SELECT * FROM DocUpload874 WHERE RefID=@RefID";
+
+            SqlCommand cmd = new SqlCommand(sql, con);
+            cmd.Parameters.AddWithValue("@RefID", docRefID);
+            cmd.ExecuteNonQuery();
+
+            SqlDataAdapter ad = new SqlDataAdapter(cmd);
+            DataTable dt = new DataTable();
+            ad.Fill(dt);
+            con.Close();
+
+            if (dt.Rows.Count > 0) return true;
+            else return false;
+        }
+    }
+
+    private int getDocUploadedRefID()
+    {
+        string nextRefID = "1000001";
+
+        using (SqlConnection con = new SqlConnection(connectionString))
+        {
+            con.Open();
+            string sql = "SELECT ISNULL(MAX(CAST(RefID AS INT)), 1000000) + 1 AS NextRefID FROM DocUpload874";
+            SqlCommand cmd = new SqlCommand(sql, con);
+
+            object result = cmd.ExecuteScalar();
+            if (result != null && result != DBNull.Value) { nextRefID = result.ToString(); }
+            return Convert.ToInt32(nextRefID);
         }
     }
 }
