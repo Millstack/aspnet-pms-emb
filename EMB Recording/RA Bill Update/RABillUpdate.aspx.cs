@@ -23,6 +23,48 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
     string selectedVendorRefID;
     string selectedAbstractNO;
 
+    // Step #1: Create a Class named ApiPara with 4 properties
+    //public class Api
+    //{
+    //    public string Command { get; set; }
+    //    public Dictionary<string, string> Parameters { get; set; }
+    //    public string Connection { get; set; }
+    //    public string AccessKey { get; set; }
+    //}
+
+    //private DataTable getApiCall(string sql, Dictionary<string, string> para)
+    //{
+    //    Api mPara = new Api
+    //    {
+    //        Command = sql,
+    //        Parameters = para,
+    //        Connection = "Ginie"
+    //    };
+
+    //    string jsonContent = JsonConvert.SerializeObject(mPara);
+    //    StringContent stringContent = new StringContent(jsonContent, System.Text.Encoding.UTF8, "application/json");
+
+    //    string apiUrl = "http://101.53.144.92/wms/api/Get/Table";
+
+    //    using (HttpClient client = new HttpClient())
+    //    {
+    //        HttpResponseMessage response = client.PostAsync(apiUrl, stringContent).Result;
+
+    //        if (response.IsSuccessStatusCode)
+    //        {
+    //            string jsonResponse = response.Content.ReadAsStringAsync().Result;
+
+    //            DataTable dt = JsonConvert.DeserializeObject<DataTable>(jsonResponse);
+
+    //            return dt;
+    //        }
+    //        else
+    //        {
+    //            return new DataTable();
+    //        }
+    //    }
+    //}
+
     protected void Page_Load(object sender, EventArgs e)
     {
         if (!IsPostBack)
@@ -132,6 +174,14 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
 
     private void Bind_RaHeader()
     {
+        //string sql = "select * from RaHeader874";
+        //Dictionary<string, string> para = new Dictionary<string, string>();
+        //DataTable dt = getApiCall(sql, para);
+
+        //gridRaHeader.DataSource = dt;
+        //gridRaHeader.DataBind();
+
+
         using (SqlConnection con = new SqlConnection(connectionString))
         {
             con.Open();
@@ -424,7 +474,7 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
             using (SqlConnection con = new SqlConnection(connectionString))
             {
                 con.Open();
-                string sql = "SELECT * FROM RaHeader874 where RaProj = @RaProj and RaWO = @RaWO and RaVendor = @RaVendor";
+                string sql = "SELECT * FROM RaHeader874 where RaProj = @RaProj and RaWO = @RaWO";
                 SqlCommand cmd = new SqlCommand(sql, con);
                 cmd.Parameters.AddWithValue("@RaProj", projectDT.Rows[0]["ProjectName"].ToString());
                 cmd.Parameters.AddWithValue("@RaWO", workOrderDT.Rows[0]["woTendrNo"].ToString());
@@ -443,7 +493,7 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
             using (SqlConnection con = new SqlConnection(connectionString))
             {
                 con.Open();
-                string sql = "SELECT * FROM RaHeader874 where RaProj = @RaProj and RaWO = @RaWO and RaVendor = @RaVendor";
+                string sql = "SELECT * FROM RaHeader874 where RaProj = @RaProj";
                 SqlCommand cmd = new SqlCommand(sql, con);
                 cmd.Parameters.AddWithValue("@RaProj", projectDT.Rows[0]["ProjectName"].ToString());
                 cmd.ExecuteNonQuery();
@@ -876,6 +926,20 @@ public partial class RA_Bill_RABill : System.Web.UI.Page
 
             // binding doc gridview
             updateDocUploadGrid(rowId);
+        }
+    }
+
+    protected void GridDocument_RowCommand(object sender, GridViewCommandEventArgs e)
+    {
+        if (e.CommandName == "lnkView")
+        {
+            int docRefID = Convert.ToInt32(e.CommandArgument); 
+            Session["DocRefID"] = docRefID;
+
+            // alert pop-up with only message
+            string message = "docRefID  " + docRefID;
+            string script = $"alert('{message}');";
+            ScriptManager.RegisterStartupScript(this, this.GetType(), "messageScript", script, true);
         }
     }
 

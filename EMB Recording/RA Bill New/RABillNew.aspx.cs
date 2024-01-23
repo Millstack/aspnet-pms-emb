@@ -520,32 +520,6 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
         }
     }
 
-    //protected void GridDocument_RowCommand(object sender, GridViewCommandEventArgs e)
-    //{
-    //    if (e.CommandName == "lnkView")
-    //    {
-    //        // Getting the current row index from the CommandArgument
-    //        string id = e.CommandArgument.ToString();
-
-    //        // Retrieve DataTable from ViewState
-    //        DataTable dt = ViewState["DocDetailsDataTable"] as DataTable;
-
-    //        // Remove the row from DataTable based on the docPath
-    //        DataRow rowToDelete = dt.Select($"docPath = '{docPath}'").FirstOrDefault();
-    //        if (rowToDelete != null)
-    //        {
-    //            dt.Rows.Remove(rowToDelete);
-    //        }
-
-    //        // Save DataTable to ViewState
-    //        ViewState["DocDetailsDataTable"] = dt;
-    //        Session["DocuUploadDT"] = dt;
-
-    //        GridDocument.DataSource = dt;
-    //        GridDocument.DataBind();
-    //    }
-    //}
-
     private void BindGridDocuments()
     {
        
@@ -1130,7 +1104,7 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
                 int rowIndex = row.RowIndex;
 
                 // dropdown values
-                string DocUploadRefID = dt.Rows[rowIndex]["docType"].ToString();
+                int docRedID = getDocUploadedRefID();
                 string docType = dt.Rows[rowIndex]["docType"].ToString();
                 string stageLevel = dt.Rows[rowIndex]["stageLevel"].ToString();
                 string onlyFileName = dt.Rows[rowIndex]["onlyFileName"].ToString();
@@ -1146,7 +1120,7 @@ public partial class RA_Bill_New_RABillNew : System.Web.UI.Page
                     string sql = "insert into DocUpload874 (RefID, RaHeaderID, DocType, StageLevel, DocName, DocPath) values (@RefID, @RaHeaderID, @DocType, @StageLevel, @DocName, @DocPath)";
 
                     SqlCommand cmd = new SqlCommand(sql, con);
-                    cmd.Parameters.AddWithValue("@RefID", DocUploadRefID.ToString());
+                    cmd.Parameters.AddWithValue("@RefID", docRedID.ToString());
                     cmd.Parameters.AddWithValue("@RaHeaderID", RaRefID.ToString());
                     cmd.Parameters.AddWithValue("@DocType", docType.ToString());
                     cmd.Parameters.AddWithValue("@StageLevel", stageLevel.ToString());

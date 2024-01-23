@@ -31,7 +31,7 @@
 <body>
     <form id="form1" runat="server">
 
-        <asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>
+        <asp:ScriptManager ID="ScriptManager1" runat="server" EnablePartialRendering="true"></asp:ScriptManager>
 
         <div id="divTopSearch" runat="server" visible="true">
             <div class="mx-auto col-md-11">
@@ -64,7 +64,7 @@
                                                 <div class="mb-1 text-body-tertiary fw-semibold">
                                                     <asp:Literal ID="Literal13" Text="Project" runat="server"></asp:Literal>
                                                 </div>
-                                                <div class="border border-secondary-subtle bg-light rounded-1 fs-6 fw-light py-1">
+                                                <div class="rounded-1 fs-6 fw-light py-1">
                                                     <asp:UpdatePanel ID="UpdatePanel1" runat="server" UpdateMode="Conditional">
                                                         <ContentTemplate>
                                                             <asp:DropDownList ID="ddProject" runat="server" OnSelectedIndexChanged="ddProject_SelectedIndexChanged" AutoPostBack="true" class="form-control is-invalid" CssClass=""></asp:DropDownList>
@@ -78,7 +78,7 @@
                                                 <div class="mb-1 text-body-tertiary fw-semibold">
                                                     <asp:Literal ID="Literal16" Text="Work Order" runat="server"></asp:Literal>
                                                 </div>
-                                                <div class="border border-secondary-subtle bg-light rounded-1 fs-6 fw-light py-1">
+                                                <div class="rounded-1 fs-6 fw-light py-1">
                                                     <asp:UpdatePanel ID="UpdatePanel2" runat="server">
                                                         <ContentTemplate>
                                                             <asp:DropDownList ID="ddWOName" runat="server" OnSelectedIndexChanged="ddWOName_SelectedIndexChanged" AutoPostBack="true" class="form-control is-invalid"></asp:DropDownList>
@@ -94,7 +94,7 @@
                                                 <div class="mb-1 text-body-tertiary fw-semibold">
                                                     <asp:Literal ID="Literal15" Text="Vendor Name & Code" runat="server"></asp:Literal>
                                                 </div>
-                                                <div class="border border-secondary-subtle bg-light rounded-1 fs-6 fw-light py-1">
+                                                <div class="rounded-1 fs-6 fw-light py-1">
                                                     <asp:UpdatePanel ID="UpdatePanel3" runat="server">
                                                         <ContentTemplate>
                                                             <asp:DropDownList ID="ddVendorName" runat="server" OnSelectedIndexChanged="ddVendorName_SelectedIndexChanged" AutoPostBack="true" class="form-control is-invalid" CssClass=""></asp:DropDownList>
@@ -174,7 +174,11 @@
                                         <asp:Literal ID="Literal4" Text="Project Master" runat="server">Project Master</asp:Literal>
                                     </div>
                                     <div class="py-1">
-                                        <asp:DropDownList ID="ddProjectMaster" ClientIDMode="Static" runat="server" class="form-control is-invalid"></asp:DropDownList>
+                                        <asp:UpdatePanel ID="UpdatePanel4" runat="server">
+                                            <ContentTemplate>
+                                                <asp:DropDownList ID="ddProjectMaster" ClientIDMode="Static" runat="server" class="form-control is-invalid"></asp:DropDownList>
+                                            </ContentTemplate>
+                                        </asp:UpdatePanel>
                                     </div>
                                 </div>
                             </div>
@@ -184,7 +188,11 @@
                                         <asp:Literal ID="Literal6" Text="Work Order No." runat="server">Work Order No.</asp:Literal>
                                     </div>
                                     <div class="py-1">
-                                        <asp:DropDownList ID="ddWorkOrder" ClientIDMode="Static" runat="server" class="form-control is-invalid"></asp:DropDownList>
+                                        <asp:UpdatePanel ID="UpdatePanel5" runat="server">
+                                            <ContentTemplate>
+                                                <asp:DropDownList ID="ddWorkOrder" ClientIDMode="Static" runat="server" class="form-control is-invalid"></asp:DropDownList>
+                                            </ContentTemplate>
+                                        </asp:UpdatePanel>
                                     </div>
                                 </div>
                             </div>
@@ -196,7 +204,11 @@
                                         <asp:Literal ID="Literal7" Text="Vendor Name" runat="server">Vendor Name</asp:Literal>
                                     </div>
                                     <div class="py-1">
-                                        <asp:DropDownList ID="ddVender" ClientIDMode="Static" runat="server" class="form-control is-invalid"></asp:DropDownList>
+                                        <asp:UpdatePanel ID="UpdatePanel6" runat="server">
+                                            <ContentTemplate>
+                                                <asp:DropDownList ID="ddVender" ClientIDMode="Static" runat="server" class="form-control is-invalid"></asp:DropDownList>
+                                            </ContentTemplate>
+                                        </asp:UpdatePanel>
                                     </div>
                                 </div>
                             </div>
@@ -206,7 +218,11 @@
                                         <asp:Literal ID="Literal3" Text="Abstract / EMB No." runat="server">Abstract / EMB No.</asp:Literal>
                                     </div>
                                     <div class="py-1">
-                                        <asp:DropDownList ID="ddAbstractNo" ClientIDMode="Static" runat="server" class="form-control is-invalid"></asp:DropDownList>
+                                        <asp:UpdatePanel ID="UpdatePanel7" runat="server">
+                                            <ContentTemplate>
+                                                <asp:DropDownList ID="ddAbstractNo" ClientIDMode="Static" runat="server" class="form-control is-invalid"></asp:DropDownList>
+                                            </ContentTemplate>
+                                        </asp:UpdatePanel>
                                     </div>
                                 </div>
                             </div>
@@ -504,7 +520,7 @@
 
                             <!-- Document Grid -->
                             <div id="docGrid" class="mt-5" runat="server" visible="false">
-                                <asp:GridView ShowHeaderWhenEmpty="true" ID="GridDocument" runat="server" AutoGenerateColumns="false" OnRowDataBound="GridTax_RowDataBound"
+                                <asp:GridView ShowHeaderWhenEmpty="true" ID="GridDocument" EnableViewState="true" runat="server" AutoGenerateColumns="false"  OnRowCommand="GridDocument_RowCommand"
                                     CssClass="table table-bordered border border-light-subtle text-start mt-3 grid-custom">
                                     <HeaderStyle CssClass="align-middle fw-light fs-6" />
                                     <Columns>
@@ -517,6 +533,16 @@
                                                 <asp:HyperLink ID="DocPath" runat="server" Text="View Uploaded Document" NavigateUrl='<%# Eval("DocPath") %>' Target="_blank" CssClass="text-decoration-none"></asp:HyperLink>
                                             </ItemTemplate>
                                         </asp:TemplateField>
+
+                                        <asp:TemplateField HeaderText="Delete File">
+                                            <ItemTemplate>
+                                                <asp:LinkButton runat="server" ID="btnDelete" CommandArgument='<%# Eval("RefID") %>' CommandName="lnkView" ToolTip="Delete" CssClass="shadow-sm">
+                                                    <asp:Image runat="server" ImageUrl="../img/delete.png" AlternateText="Edit" style="width: 23px; height: 23px;"/>
+                                                </asp:LinkButton>
+                                            </ItemTemplate>
+                                            <ItemStyle HorizontalAlign="Center" Width="100px" />
+                                        </asp:TemplateField>
+
                                     </Columns>
                                 </asp:GridView>
                             </div>
@@ -527,7 +553,7 @@
                             <div class="">
                                 <div class="row mt-5 mb-2">
                                     <div class="col-md-6 text-start">
-                                        <asp:Button ID="btnBack" runat="server" Text="Submit" OnClick="btnBack_Click" CssClass="btn btn-custom text-white shadow mb-5" />
+                                        <asp:Button ID="btnBack" runat="server" Text="Back" OnClick="btnBack_Click" CssClass="btn btn-custom text-white shadow mb-5" />
                                     </div>
                                     <div class="col-md-6 text-end">
                                         <asp:Button ID="btnSubmit" runat="server" Text="Submit" OnClick="btnSubmit_Click" CssClass="btn btn-custom text-white shadow mb-5" />

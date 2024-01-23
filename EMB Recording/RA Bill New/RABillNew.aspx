@@ -24,12 +24,19 @@
     <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.3/dist/sweetalert2.all.min.js"></script>
 
+    <!-- Pace.js CSS (optional) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/pace/1.0.2/themes/blue/pace-theme-flash.min.css" />
+    <!-- Pace.js JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pace/1.0.2/pace.min.js"></script>
+
+
     <script src="RABillNew.js"></script>
     <link rel="stylesheet" type="text/css" href="RABillNew.css" />
 
 </head>
 <body>
     <form id="form1" runat="server">
+
         <asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>
 
         <div class="mx-2 my-2 mx-auto col-md-11">
@@ -52,7 +59,7 @@
                                 <asp:RequiredFieldValidator ID="RequiredFieldValidator4" ControlToValidate="ddProjectMaster" CssClass="invalid-feedback" InitialValue="0" runat="server" ErrorMessage="(Please select the project)" SetFocusOnError="True" Display="Dynamic" ToolTip="ddProjectMaster"></asp:RequiredFieldValidator>
                             </div>
                             <div class="py-1">
-                                <asp:UpdatePanel ID="UpdatePanel1" runat="server">
+                                <asp:UpdatePanel ID="UpdatePanel5" runat="server" UpdateMode="Conditional">
                                     <ContentTemplate>
                                         <asp:DropDownList ID="ddProjectMaster" ClientIDMode="Static" runat="server" OnSelectedIndexChanged="ddProjectMaster_SelectedIndexChanged" AutoPostBack="true" class="form-control is-invalid"></asp:DropDownList>
                                     </ContentTemplate>
@@ -70,9 +77,9 @@
                                 <asp:RequiredFieldValidator ID="RequiredFieldValidator6" ControlToValidate="ddWorkOrder" CssClass="invalid-feedback" InitialValue="0" runat="server" ErrorMessage="(Please select the work order)" SetFocusOnError="True" Display="Dynamic" ToolTip="Required"></asp:RequiredFieldValidator>
                             </div>
                             <div class="py-1">
-                                <asp:UpdatePanel ID="UpdatePanel2" runat="server">
+                                <asp:UpdatePanel ID="UpdatePanel2" runat="server" UpdateMode="Conditional">
                                     <ContentTemplate>
-                                        <asp:DropDownList ID="ddWorkOrder" ClientIDMode="Static" runat="server" OnSelectedIndexChanged="ddWorkOrder_SelectedIndexChanged" AutoPostBack="true" class="form-control is-invalid"></asp:DropDownList>
+                                        <asp:DropDownList ID="ddWorkOrder" ClientIDMode="Static" runat="server" OnSelectedIndexChanged="ddWorkOrder_SelectedIndexChanged" AutoPostBack="false" class="form-control is-invalid"></asp:DropDownList>
                                     </ContentTemplate>
                                 </asp:UpdatePanel>
                             </div>
@@ -92,7 +99,7 @@
                             <div class="py-1">
                                 <asp:UpdatePanel ID="UpdatePanel3" runat="server">
                                     <ContentTemplate>
-                                        <asp:DropDownList ID="ddVender" ClientIDMode="Static" runat="server" OnSelectedIndexChanged="ddVender_SelectedIndexChanged" AutoPostBack="true" class="form-control is-invalid"></asp:DropDownList>
+                                        <asp:DropDownList ID="ddVender" ClientIDMode="Static" runat="server" OnSelectedIndexChanged="ddVender_SelectedIndexChanged" AutoPostBack="false" class="form-control is-invalid"></asp:DropDownList>
                                     </ContentTemplate>
                                 </asp:UpdatePanel>
                             </div>
@@ -110,7 +117,7 @@
                             <div class="py-1">
                                 <asp:UpdatePanel ID="UpdatePanel4" runat="server">
                                     <ContentTemplate>
-                                        <asp:DropDownList ID="ddAbstractNo" ClientIDMode="Static" runat="server" OnSelectedIndexChanged="ddAbstractNo_SelectedIndexChanged" AutoPostBack="true" class="form-control is-invalid"></asp:DropDownList>
+                                        <asp:DropDownList ID="ddAbstractNo" ClientIDMode="Static" runat="server" OnSelectedIndexChanged="ddAbstractNo_SelectedIndexChanged" AutoPostBack="false" class="form-control is-invalid"></asp:DropDownList>
                                     </ContentTemplate>
                                 </asp:UpdatePanel>
                             </div>
@@ -413,7 +420,7 @@
 
                     <!-- Document Grid OnRowCommand="GridDocument_RowCommand" -->
                     <div class="mt-5">
-                        <asp:GridView ShowHeaderWhenEmpty="true" ID="GridDocument" runat="server" AutoGenerateColumns="false" 
+                        <asp:GridView ShowHeaderWhenEmpty="true" ID="GridDocument" runat="server" AutoGenerateColumns="false"
                             CssClass="table table-bordered border border-light-subtle text-start mt-3 grid-custom">
                             <HeaderStyle CssClass="align-middle fw-light fs-6" />
                             <Columns>
@@ -444,7 +451,6 @@
                                     </ItemTemplate>
                                     <ItemStyle HorizontalAlign="Center" Width="100px" />
                                 </asp:TemplateField>--%>
-
                             </Columns>
                         </asp:GridView>
                     </div>
